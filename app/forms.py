@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, DateField
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 from app.models import User, Subject, Group
 
@@ -8,7 +8,6 @@ class LoginForm(FlaskForm):
     username = StringField('Имя пользователя', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
-    submit = SubmitField('Войти')
 
 class RegistrationForm(FlaskForm):
     username = StringField('Имя пользователя', validators=[DataRequired()])
@@ -65,5 +64,11 @@ class SubjectsEditForm(FlaskForm):
         if delete.data:
             if current_user.tutor.tgs.filter_by(group_id=self.group_id.data, subject_name=self.subject.data).first() is None:
                 raise ValidationError("Этой пары не существует. Попробуйте снова.")
+
+class CheckPointForm(FlaskForm):
+    name = StringField('Наименование', validators=[DataRequired()])
+    posting_date = DateField('Дата сдачи', validators=[DataRequired()])
+    critical_date = DateField('Крайняя дата сдачи', validators=[DataRequired()])
+    submit = SubmitField('Изменить') 
 
 

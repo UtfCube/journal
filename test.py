@@ -1,7 +1,7 @@
 from app import db
 from app.models import User, Tutor, Group, Subject, Student, Progress
 import datetime
-
+"""
 u = User(username='qwe', password_hash='1234')
 db.session.add(u)
 db.session.commit()
@@ -35,3 +35,13 @@ a.subject = s
 t.tgs.append(a)
 db.session.commit()
 a.tutor = t
+"""
+st1 = Student.query.get(6)
+st2 = Student.query.get(7)
+st3 = Student.query.get(8)
+s = Subject.query.get('физика')
+p = Progress(checkpoint_name='лаб1', posting_date=datetime.date(2017, 12, 10), critical_date=datetime.date(2017, 12, 10))
+p.subject = s
+p.student = st1
+st1.progress.append(p)
+db.session.commit()
