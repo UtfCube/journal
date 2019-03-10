@@ -2,8 +2,9 @@ from app import db
 import datetime
 from sqlalchemy.ext.associationproxy import association_proxy
 from werkzeug.security import generate_password_hash, check_password_hash
+from .serializer import Serializer 
 
-class BaseModel(db.Model):
+class BaseModel(db.Model, Serializer):
     """Base data model for all objects"""
     __abstract__ = True
 
@@ -73,10 +74,16 @@ class Person(BaseModel):
 class AssociationTGS(BaseModel):
     """Model for the tgs table"""
     __tablename__ = "tgs"
-
-    tutor_id = db.Column(db.Integer, db.ForeignKey('tutors.user_id'), primary_key=True)
-    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), primary_key=True)
-    subject_name = db.Column(db.String(128), db.ForeignKey('subjects.name'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    tutor_id = db.Column(db.Integer, db.ForeignKey('tutors.user_id'), nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
+    subject_name = db.Column(db.String(128), db.ForeignKey('subjects.name'), nullable=False)
+    checkpoints = db.relationship('Checkpoint', lazy='dynamic',
+        backref=db.backref('tgs', lazy=True), cascade='all,delete-orphan') 
+    
+    def serialize(self):
+        return { "group_id": self.group_id,
+                 "subject_name": self.subject_name }
 
 class Tutor(Person):
     """Model for the tutors table"""
@@ -86,8 +93,8 @@ class Tutor(Person):
     degree = db.Column(db.String(10))
     tgs = db.relationship('AssociationTGS', lazy='dynamic',
         backref=db.backref('tutor', lazy=True), cascade='all,delete-orphan')
-    checkpoints = db.relationship('Checkpoint', lazy='dynamic',
-        backref=db.backref('tutor', lazy=True), cascade='all,delete-orphan') 
+    # checkpoints = db.relationship('Checkpoint', lazy='dynamic',
+    #    backref=db.backref('tutor', lazy=True), cascade='all,delete-orphan') 
 
 class Group(BaseModel):
     """Model for the groups table"""
@@ -106,8 +113,8 @@ class Subject(BaseModel):
     #progress = db.relationship('Progress', backref=db.backref('subject'), lazy='dynamic', cascade='all,delete-orphan')
     tgs = db.relationship('AssociationTGS', lazy='dynamic',
         backref=db.backref('subject', lazy=True), cascade='all,delete-orphan') 
-    checkpoints = db.relationship('Checkpoint', lazy='dynamic',
-        backref=db.backref('subject', lazy=True), cascade='all,delete-orphan') 
+    # checkpoints = db.relationship('Checkpoint', lazy='dynamic',
+    #    backref=db.backref('subject', lazy=True), cascade='all,delete-orphan') 
 
 class Student(Person):
     """Model for the students table"""
@@ -124,12 +131,13 @@ class Checkpoint(BaseModel):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False)
-    posting_date = db.Column(db.DateTime, nullable=False)
-    critical_date = db.Column(db.DateTime, nullable=False)
-    subject_name = db.Column(db.String(128), db.ForeignKey('subjects.name'), nullable=False)
-    tutor_id = db.Column(db.Integer, db.ForeignKey("tutors.user_id"), nullable=False)
+    posting_date = db.Column(db.Date, nullable=False)
+    critical_date = db.Column(db.Date, nullable=False)
+    #subject_name = db.Column(db.String(128), db.ForeignKey('subjects.name'), nullable=False)
+    #tutor_id = db.Column(db.Integer, db.ForeignKey("tutors.user_id"), nullable=False)
     progress = db.relationship('Progress', lazy='dynamic',
         backref=db.backref('checkpoint', lazy=True), cascade='all,delete-orphan') 
+    tgs_id = db.Column(db.Integer, db.ForeignKey('tgs.id'), nullable=False)
 
 class Progress(BaseModel):
     """Model for the marks table"""
@@ -138,7 +146,7 @@ class Progress(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.user_id'), nullable=False)
     checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoints.id'), nullable=False)
-    pass_date = db.Column(db.DateTime)
+    pass_date = db.Column(db.Date)
     approaches_number = db.Column(db.Integer, default=0, nullable=False)
     #mark = db.Column(db.Integer, db.CheckConstraint('mark <= 5')) 
 

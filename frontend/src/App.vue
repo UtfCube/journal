@@ -1,20 +1,23 @@
 <template>
   <div id="app">
-    <app-header></app-header>
+    <Header></Header>
     <router-view/>
   </div>
 </template>
 
-<script>
-import AppHeader from '@/components/Header'
-export default {
-  name: 'App',
-  components: { AppHeader }
-}
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+import Header from '@/components/Header.vue';
+
+@Component({
+  components: { Header }
+})
+export default class App extends Vue {}
 </script>
 
-<style lang="sass">
-  @import "bulma/bulma.sass";
+<style>
+
 </style>
+
 
 

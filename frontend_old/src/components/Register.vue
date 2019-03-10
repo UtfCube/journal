@@ -70,7 +70,7 @@
     </section>
   </div>  
 </template>
-<!--
+
 <script>
 import { EventBus } from '@/utils'
 import RtfInfo from '@/components/RegisterTutorFormInfo'
@@ -117,54 +117,4 @@ export default {
     }
 }
 </script>
--->
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import { EventBus } from '@/utils';
-import RtfInfo from '@/components/RegisterTutorFormInfo.vue';
-import RsfInfo from '@/components/RegisterStudentFormInfo.vue';
 
-@Component({
-  components: {RtfInfo, RsfInfo}
-})
-export default class Register extends Vue {
-  private form: any = {};
-  private mirror_password: string = '';
-  private currentTab: string = 'Учитель';
-  private tabs: any = {
-    'Учитель': ['RtfInfo', 'tutor'], 
-    'Слушатель': ['RsfInfo', 'student']
-  };
-  private errorMsg: string = '';
-
-  get currentTabComponent () {
-    return this.tabs[this.currentTab][0]
-  }
-
-  get currentType() {
-    return this.tabs[this.currentTab][1]
-  }
-
-  mounted () {
-    EventBus.$on('failedRegistering', (msg: any) => {
-      this.errorMsg = msg
-    })
-  }
-
-  beforeDestroy () {
-    EventBus.$off('failedRegistering')
-  }
-
-  register () {
-    this.$store.dispatch('register', { type: this.currentType, form: this.form })
-        .then(() => {
-            console.log('push ' +`/${this.currentType}/home`)
-            this.$router.push(`/${this.currentType}/home`)})
-  }
-}
-</script>
-
-
-<style>
-
-</style>

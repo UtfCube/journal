@@ -32,10 +32,9 @@
 
   </div>
 </template> 
-<!--
+
 <script>  
 import { EventBus } from '@/utils'
-import Component from 'vue-class-component';
 
 export default {  
   data () {
@@ -70,40 +69,4 @@ export default {
   }
 }
 </script>  
--->
-<script lang="ts">
-import { EventBus } from '@/utils'
-import { Component, Vue } from 'vue-property-decorator';
-
-@Component
-export default class Login extends Vue {
-  private username: string = '';
-  private password: string = '';
-  private errorMsg: string = '';
-
-  get type() {
-    return this.$store.state.userData.type
-  }
-
-  mounted () {
-    EventBus.$on('failedRegistering', (msg: any) => {
-      this.errorMsg = msg
-    })
-    EventBus.$on('failedAuthentication', (msg: any) => {
-      this.errorMsg = msg
-    })
-  }
-
-  beforeDestroy () {
-    EventBus.$off('failedRegistering')
-    EventBus.$off('failedAuthentication')
-  }
-
-  authenticate () {
-    this.$store.dispatch('login', { username: this.username, password: this.password })
-      .then(() => this.$router.push(`/${this.type}/home`))
-  }
-}
-</script>
-
 
