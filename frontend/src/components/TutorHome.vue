@@ -33,7 +33,8 @@
                 :selected.sync="selected" 
                 :hoverable="true" 
                 :striped="true"
-                focusable>
+                focusable
+                @click="click">
                 <template slot-scope="props">
                     <b-table-column field="group_id" label="Группа" width="80" numeric>
                         {{ props.row.group_id }}
@@ -71,6 +72,10 @@ export default class TutorHome extends Vue {
 
     add () {
         this.error = this.$store.dispatch('addNewSubject', { group_id: this.form.group, subject_name: this.form.subject })
+    }
+
+    click(row: any) {
+        this.$router.push({name: 'GroupSubjectInfo', params: row });
     }
 }
 </script>

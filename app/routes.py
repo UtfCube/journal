@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import render_template, flash, redirect, url_for, request
 from app import app, db
-from app.forms import LoginForm, StudentRegistrationForm, TutorRegistrationForm, SubjectsEditForm, CheckPointForm
 from functools import wraps  
 from datetime import datetime, timedelta
 
@@ -9,10 +8,8 @@ from flask import Blueprint, jsonify, request, current_app
 
 import jwt
 
-from app.models import User, Tutor, Student, Group, Subject, Progress, AssociationTGS
-from werkzeug.urls import url_parse
-import requests
-import json
+from app.models import User, Tutor, Student, Group, Subject, Progress, AssociationTGS, Checkpoint
+from dateutil.parser import parse
 
 def token_required(func):
     @wraps(func)
@@ -145,52 +142,61 @@ def student_home(user):
     print(student_progress)
     return jsonify({"username": user.username, "subjects": subjects})
 
+def set_progress_names(el):
+    return {
+        "name": el[0], 
+        "posting_date": el[1],
+        "critical_date": el[2],
+        "pass_date": el[3],
+        "approaches_number": el[4]
+    }
+
 @app.route('/api/student/<subject>')
 @token_required
 def get_subject_progress(user, subject):
     student = Student.query.filter_by(user_id=user.id).first()
-    student_progress = student.progress.filter_by(subject_name=subject).all()
-    return jsonify(Progress.serialize_list(student_progress))
-    #return render_template('progress.html', title='Успеваемость', student_progress=student_progress)
+    info = (db.session.query(Checkpoint.name,
+                    Checkpoint.posting_date,
+                    Checkpoint.critical_date,
+                    Progress.pass_date,
+                    Progress.approaches_number)
+                .join(Progress)
+                .join(AssociationTGS)
+                .filter(AssociationTGS.subject_name == subject)
+                .filter(Progress.student_id == student.user_id)
+                ).all()
+    info = [set_progress_names(el) for el in info]
+    return jsonify(info)
 
 
 @app.route('/tutor/subjects/change')
 def change_subjects():
     return render_template('index.html', title='Настройка')
 
-@app.route('/tutor/<subject>/<group_id>', methods=['GET', 'POST'])
-def change_subject_progress(subject, group_id):
-    form = CheckPointForm()
-    group_progress = db.session.query(Student, Progress).join(Progress.student).\
-                        filter(Student.group_id==group_id).\
-                        filter(Progress.subject_name==subject)        
-    checkpoints = db.session.query(Progress.checkpoint_name,
-                                    Progress.posting_date,
-                                    Progress.critical_date    
-                                    ).join(Student.progress).\
-                                        filter_by(subject_name=subject).\
-                                        group_by(Progress.checkpoint_name,
-                                                    Progress.posting_date,
-                                                    Progress.critical_date).all()
-    
-    if form.validate_on_submit():
-        checkpoint = group_progress.filter_by(checkpoint_name=form.name.data).first()
-        if checkpoint is None:
-            progress = Progress(checkpoint_name=form.name.data,
-                            posting_date=form.posting_date.data,
-                            critical_date=form.critical_date.data)
-            subj = Subject.query.get(subject)
-            progress.subject = subj
-            group = Group.query.get(group_id)
-            students = group.students
-            #TODO переделать бд, чтобы менять поля в одной записи
-            for student in students:
+@app.route('/api/tutor/<subject>/<group_id>', methods=['GET', 'POST'])
+@token_required
+def checkpoints(user, subject, group_id):
+    if request.method == 'GET':
+        tutor = Tutor.query.filter_by(user_id=user.id).first()
+        checkpoints = tutor.tgs.filter_by(subject_name=subject, group_id=group_id).first().checkpoints.all()
+        return jsonify(Checkpoint.json_list(checkpoints))
+    if request.method == 'POST':
+        data = request.get_json()
+        if data:
+            tutor = Tutor.query.filter_by(user_id=user.id).first()
+            tgs = tutor.tgs.filter_by(subject_name=subject, group_id=group_id).first()
+            checkpoint = Checkpoint(name=data.get('name'),
+                                    posting_date=parse(data.get('posting_date')),
+                                    critical_date=parse(data.get('critical_date')),
+                                    tgs_id=tgs.id)
+            db.session.add(checkpoint)    
+            group = Group.query.get(tgs.group_id)
+            for student in group.students:
+                progress = Progress(checkpoint_id=checkpoint.id,
+                                    student_id=student.user_id)
                 student.progress.append(progress)
             db.session.commit()
-    else:
-        print("not valid")
-    group_progress = group_progress.all()   
-    return render_template('checkpoints.html', title='Контрольные точки', checkpoints=checkpoints, group_progress=group_progress, form=form)
+        return jsonify({"message": "success"})
 
 """
 @app.route('/logout')

@@ -32,45 +32,7 @@
 
   </div>
 </template> 
-<!--
-<script>  
-import { EventBus } from '@/utils'
-import Component from 'vue-class-component';
 
-export default {  
-  data () {
-    return {
-      username: '',
-      password: '',
-      errorMsg: ''
-    }
-  },
-  computed: {
-    type() {
-      return this.$store.state.userData.type
-    }
-  },
-  methods: {
-    authenticate () {
-      this.$store.dispatch('login', { username: this.username, password: this.password })
-        .then(() => this.$router.push(`/${this.type}/home`))
-    },
-  },
-  mounted () {
-    EventBus.$on('failedRegistering', (msg) => {
-      this.errorMsg = msg
-    })
-    EventBus.$on('failedAuthentication', (msg) => {
-      this.errorMsg = msg
-    })
-  },
-  beforeDestroy () {
-    EventBus.$off('failedRegistering')
-    EventBus.$off('failedAuthentication')
-  }
-}
-</script>  
--->
 <script lang="ts">
 import { EventBus } from '@/utils'
 import { Component, Vue } from 'vue-property-decorator';

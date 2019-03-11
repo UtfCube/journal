@@ -70,54 +70,7 @@
     </section>
   </div>  
 </template>
-<!--
-<script>
-import { EventBus } from '@/utils'
-import RtfInfo from '@/components/RegisterTutorFormInfo'
-import RsfInfo from '@/components/RegisterStudentFormInfo'
 
-export default {
-    name: 'register',
-    components: { RtfInfo, RsfInfo },
-    data: function () {
-        return {
-            form: {},
-            mirror_password: '',
-            currentTab: 'Учитель',
-            tabs: {
-                'Учитель': ['rtf-info', 'tutor'], 
-                'Слушатель': ['rsf-info', 'student']
-            },
-            errorMsg: '',
-        }
-    },
-    computed: {
-        currentTabComponent: function () {
-            return this.tabs[this.currentTab][0]
-        },
-        currentType: function () {
-            return this.tabs[this.currentTab][1]
-        }
-    },
-    mounted () {
-        EventBus.$on('failedRegistering', (msg) => {
-        this.errorMsg = msg
-        })
-    },
-    beforeDestroy () {
-        EventBus.$off('failedRegistering')
-    },
-    methods: {
-        register () {
-            this.$store.dispatch('register', { type: this.currentType, form: this.form })
-                .then(() => {
-                    console.log('push ' +`/${this.currentType}/home`)
-                    this.$router.push(`/${this.currentType}/home`)})
-        }
-    }
-}
-</script>
--->
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { EventBus } from '@/utils';

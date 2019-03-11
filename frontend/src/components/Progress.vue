@@ -8,7 +8,36 @@
                 </div>
             </div>
         </section>
+        <section>
+            <b-table 
+                :data="progress"
+                :selected.sync="selected" 
+                :hoverable="true" 
+                :striped="true"
+                focusable>
+                <template slot-scope="props">
+                    <b-table-column field="name" label="Название">
+                        {{ props.row.name }}
+                    </b-table-column>
 
+                    <b-table-column field="posting_date" label="Назначенная дата сдачи" centered>
+                        {{ new Date(props.row.posting_date).toLocaleDateString() }}
+                    </b-table-column>
+
+                    <b-table-column field="critical_date" label="Крайняя дата сдачи" centered>
+                        {{ new Date(props.row.critical_date).toLocaleDateString() }}
+                    </b-table-column>
+
+                    <b-table-column field="pass_date" label="Дата сдачи" centered>
+                        {{ (props.row.pass_date) ? new Date(props.row.pass_date).toLocaleDateString() : null }}
+                    </b-table-column>
+
+                    <b-table-column field="approaches_number" label="Количество подходов" numeric>
+                        {{ props.row.approaches_number }}
+                    </b-table-column>
+                </template>
+            </b-table>
+        </section>
     </div>
 </template>
 
@@ -18,12 +47,18 @@ import { Component, Vue } from 'vue-property-decorator'
 @Component
 export default class Progress extends Vue {
     private error: string = '';
+    private selected: any = {};
+    
     get username() {
         return this.$store.state.userData.username;
     }
 
+    get progress() {
+        return this.$store.state.progress;
+    }
+    
     beforeMount() {
-        const error = this.$store.dispatch('getProgress')
+        this.$store.dispatch('getProgress', this.$route.params.subject);
     }
 }
 </script>

@@ -2,6 +2,15 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from '@/store'
 
+function beforeEnter (to: any, from: any, next: any) {
+  if (!store.getters.isAuthenticated) {
+    next('/login')
+  } else {
+    next()
+  }
+}
+
+
 const routerOptions = [
   { 
     path: '/', 
@@ -14,24 +23,12 @@ const routerOptions = [
     path: '/student/home',
     name: 'studentHome', 
     component: 'StudentHome',
-    beforeEnter (to: any, from: any, next: any) {
-      if (!store.getters.isAuthenticated) {
-        next('/login')
-      } else {
-        next()
-      }
-    }
+    beforeEnter: beforeEnter
   }, { 
     path: '/tutor/home',
     name: 'tutorHome', 
     component: 'TutorHome',
-    beforeEnter (to: any, from: any, next: any) {
-      if (!store.getters.isAuthenticated) {
-        next('/login')
-      } else {
-        next()
-      }
-    }
+    beforeEnter: beforeEnter,
   }, {
     path: '/register',
     name: 'register',
@@ -41,13 +38,13 @@ const routerOptions = [
     name: 'progress',
     props: true,
     component: 'Progress',
-    beforeEnter (to: any, from: any, next: any) {
-      if (!store.getters.isAuthenticated) {
-        next('/login')
-      } else {
-        next()
-      }
-    }
+    beforeEnter: beforeEnter
+  }, {
+    path: '/tutor/:subject_name/:group_id',
+    name: 'GroupSubjectInfo',
+    props: true,
+    component: 'GroupSubjectInfo',
+    beforeEnter: beforeEnter
   }
 ]
 

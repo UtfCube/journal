@@ -1,5 +1,4 @@
 <template>
-<div class="container">
   <nav class="navbar is-light" role="navigation" aria-label="main navigation">
     <div class="navbar-menu">
       <div class="navbar-start">
@@ -15,19 +14,8 @@
       </div>
     </div>
   </nav>
-</div>
 </template>
-<!--
-<script>
-export default {
-  computed: {
-    isAuthenticated () {
-      return this.$store.getters.isAuthenticated
-    }
-  }
-}
-</script>
--->
+
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 

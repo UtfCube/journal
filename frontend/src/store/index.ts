@@ -10,6 +10,8 @@ Vue.use(Vuex)
 const state = {  
   // single source of data
   userData: {},
+  currentCheckpoints: [],
+  progress: [],
   jwt: ''
 }
 
@@ -52,12 +54,21 @@ const actions = {
         return error;
       }
     },
-    getTutorHome (context: any) {
+    getTutorHome(context: any) {
       return Api.getTutorHome(context.state.jwt.token)
         .then(response => {
           context.commit('setTutorInfo', { tutorInfo: response.data })
         })
-        
+    },
+    getCheckPoints(context: any, payload: any) {
+      return Api.getCheckPoints(context.state.jwt.token, payload)
+        .then(response => {
+          console.log(response.data)
+          context.commit('setCurrentCheckpoints', { checkpoints: response.data })
+        })
+        .catch(error => {
+          console.log(error);
+        })
     },
     async addNewSubject (context: any, payload: any) {
       try {
@@ -67,6 +78,22 @@ const actions = {
       } catch(error) {
         return error;
       }
+    },
+    addCheckPoint(context: any, payload: any) {
+      return Api.addCheckPoint(context.state.jwt.token, payload)
+        .then(response => {
+          context.commit('updateCurrentCheckpoints', { checkpoint: payload.checkpoint });
+        })
+    },
+    getProgress(context: any, payload: any) 
+    {
+      return Api.getProgress(context.state.jwt.token, payload)
+        .then(response => {
+          context.commit('setProgress', { progress: response.data })
+        })
+        .catch(error => {
+          console.log(error);
+        })
     }
 }
 
@@ -96,6 +123,17 @@ const mutations = {
     setStudentInfo (state: any, payload: any) {
       Vue.set(state.userData, 'info', payload.studentInfo);
     },
+    setCurrentCheckpoints(state: any, payload: any) {
+      console.log('setCurrentCheckpoints payload = ', payload);
+      state.currentCheckpoints = payload.checkpoints;
+    },
+    setProgress(state:any, payload: any) {
+      console.log('setProgress payload = ', payload);
+      state.progress = payload.progress;
+    },
+    updateCurrentCheckpoints(state: any, payload: any) {
+      state.currentCheckpoints.push(payload.checkpoint); 
+    }
 }
 
 const getters = {  
