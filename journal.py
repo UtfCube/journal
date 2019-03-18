@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import User, Tutor, Group, Subject, Student, Progress
+from app.models import User, Tutor, Group, Subject, Student
 
 @app.shell_context_processor
 def make_shell_contex():
@@ -10,5 +10,4 @@ def make_shell_contex():
 			'Group': Group,
 			'Subject': Subject,
 			'Student': Student,
-			'Progress': Progress
 		}

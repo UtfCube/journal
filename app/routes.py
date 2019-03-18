@@ -138,8 +138,6 @@ def student_home(user):
     student = Student.query.filter_by(user_id=user.id).first()
     group = Group.query.filter_by(id=student.group_id).first()
     subjects = [x[0] for x in group.tgs.with_entities(AssociationTGS.subject_name)]
-    student_progress = student.progress.join(Progress.checkpoint).all()
-    print(student_progress)
     return jsonify({"username": user.username, "subjects": subjects})
 
 def set_progress_names(el):
@@ -167,11 +165,6 @@ def get_subject_progress(user, subject):
                 ).all()
     info = [set_progress_names(el) for el in info]
     return jsonify(info)
-
-
-@app.route('/tutor/subjects/change')
-def change_subjects():
-    return render_template('index.html', title='Настройка')
 
 @app.route('/api/tutor/<subject>/<group_id>', methods=['GET', 'POST'])
 @token_required
