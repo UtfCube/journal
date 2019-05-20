@@ -66,7 +66,8 @@ class TutorService:
         checkpoints = tgs.checkpoints.all()
         res['checkpoints'] = Checkpoint.json_list(checkpoints, ['id', 'tgs_id'])
         for i, checkpoint in enumerate(checkpoints):
-            res['checkpoints'][i]['fields'] = Checkpoint.json_list(checkpoint.fields, ['id', 'checkpoint_id'])
+            #res['checkpoints'][i]['fields'] = Checkpoint.json_list(checkpoint.fields, ['id', 'checkpoint_id'])
+            res['checkpoints'][i]['fields'] = [ field.name for field in checkpoint.fields ]
         return res
 
     def add_checkpoints(self, username, subject_name, group_id, data):
@@ -80,8 +81,8 @@ class TutorService:
                 raise CheckpointExist(cp_name)
             checkpoint = Checkpoint(name=cp_name, tgs_id=tgs.id)
             db.session.add(checkpoint)
-            for cb_field_json in cp_json['fields']:
-                cp_field = CheckpointField(name=cb_field_json['name'], checkpoint_id=checkpoint.id)
+            for cp_field_json in cp_json['fields']:
+                cp_field = CheckpointField(name=cp_field_json, checkpoint_id=checkpoint.id)
                 checkpoint.fields.append(cp_field)
             for student in group.students:
                 for cp_field in checkpoint.fields:

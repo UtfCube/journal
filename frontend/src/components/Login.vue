@@ -22,7 +22,13 @@
             <input type="password" class="input is-large" id="password" v-model="password">
           </div>
         </div>
-
+        <div class="field">
+            <b-checkbox v-model="type"
+                true-value="student"
+                false-value="tutor">
+                Войти как слушатель
+            </b-checkbox>
+        </div>
         <div class="control">
           <a class="button is-large is-primary" @click="authenticate">Войти</a>
         </div>
@@ -42,28 +48,20 @@ export default class Login extends Vue {
   private username: string = '';
   private password: string = '';
   private errorMsg: string = '';
+  private type: string = 'tutor';
 
-  get type() {
-    return this.$store.state.userData.type
+  get error() {
+    return this.$store.state.error;
   }
 
-  mounted () {
-    EventBus.$on('failedRegistering', (msg: any) => {
-      this.errorMsg = msg
-    })
-    EventBus.$on('failedAuthentication', (msg: any) => {
-      this.errorMsg = msg
-    })
-  }
-
-  beforeDestroy () {
-    EventBus.$off('failedRegistering')
-    EventBus.$off('failedAuthentication')
-  }
-
-  authenticate () {
-    this.$store.dispatch('login', { username: this.username, password: this.password })
-      .then(() => this.$router.push(`/${this.type}/home`))
+  async authenticate () {
+    const error = await this.$store.dispatch('login', { username: this.username, password: this.password })
+    if (error) {
+      this.errorMsg = error;
+    }
+    else {
+      this.$router.push(`/${this.type}/home`);
+    }
   }
 }
 </script>

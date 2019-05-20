@@ -45,6 +45,11 @@ const routerOptions = [
     props: true,
     component: 'GroupSubjectInfo',
     beforeEnter: beforeEnter
+  }, {
+    path: '/logout',
+    name: 'logout',
+    component: 'Logout',
+    beforeEnter: beforeEnter
   }
 ]
 

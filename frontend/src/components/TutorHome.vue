@@ -58,8 +58,8 @@ export default class TutorHome extends Vue {
     private error: string = '';
     private selected: object = {};
 
-    beforeMount () {
-        this.error = this.$store.dispatch('getTutorHome');
+    async beforeMount () {
+        this.error = await this.$store.dispatch('getTutorHome');
     }
 
     get username () {
@@ -70,8 +70,8 @@ export default class TutorHome extends Vue {
         return this.$store.state.userData.info;
     }
 
-    add () {
-        this.error = this.$store.dispatch('addNewSubject', { group_id: this.form.group, subject_name: this.form.subject })
+    async add () {
+        this.error = await this.$store.dispatch('addNewSubject', { group_id: this.form.group, subject_name: this.form.subject });
     }
 
     click(row: any) {
@@ -79,33 +79,4 @@ export default class TutorHome extends Vue {
     }
 }
 </script>
-<!--
-<script>
-export default {
-    data() {
-        return {
-            selected: {},
-            error: '',
-            form: {}
-        }
-    },
-    computed: {
-        assosiations() {
-            return this.$store.state.userData.info
-        },
-        username() {
-            return this.$store.state.userData.username
-        }
-    },
-    beforeMount () {
-        this.$store.dispatch('getTutorHome');
-    },
-    methods: {
-        add () {
-            this.error = this.$store.dispatch('addNewSubject', { group_id: this.form.group, subject_name: this.form.subject })
-        }
-    }
-}
-</script>
--->
 

@@ -12,7 +12,6 @@ const state = {
   userData: {},
   currentCheckpoints: [],
   progress: [],
-  jwt: ''
 }
 
 const actions = {  
@@ -21,79 +20,97 @@ const actions = {
     //
     // omitting the other action methods...
     //
-  
-    login (context: any, userData: any) {
-      return Api.authenticate(userData)
-        .then(response => {
-          let { token } = response.data
-          context.commit('setJwtToken', { jwt: { token } })
-          context.commit('setUserData', { userData: { ...userData, type: response.data.type }})
-        })
-        .catch(error => {
-          console.log('Error Authenticating: ', error)
-          EventBus.$emit('failedAuthentication', error)
-        })
+    async login (context: any, userData: any) {
+      try {
+        const response = await Api.authenticate(userData);
+        const { access_token } = response.data
+        context.commit('setJwtToken', { jwt: access_token })
+        context.commit('setUserData', { userData: userData})
+        return null
+      }
+      catch (error) {
+        return error.response.data.msg
+      }
     },
-    register (context: any, payload: any) {
-      let { username, password } = payload.form
-      let userData = { username, password }
-      context.commit('setUserData', { userData })
-      return Api.register(payload.type, payload.form)
-        .then(context.dispatch('login', userData))
-        .catch(error => {
-          console.log('Error Registering: ', error)
-          EventBus.$emit('failedRegistering: ', error)
-        })
+    async register (context: any, payload: any) {
+      try {
+        let { username, password } = payload.form
+        let userData = { username, password }
+        context.commit('setUserData', { userData })
+        await Api.register(payload.type, payload.form);
+        return await context.dispatch('login', userData);
+      }
+      catch (error) {
+        return error.response.data.msg
+      }
+    },
+    async logout (context: any) {
+      try {
+        await Api.logout(localStorage.access_token);
+        context.commit('deleteJwtToken');
+        return null;
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
     },
     async getStudentHome (context: any) {
       try { 
-        const response = await Api.getStudentHome(context.state.jwt.token)
+        const response = await Api.getStudentHome(localStorage.access_token)
         context.commit('setStudentInfo', { studentInfo: response.data })
         return null
       } catch (error) {
-        return error;
+        return error.response.data.msg;
       }
     },
-    getTutorHome(context: any) {
-      return Api.getTutorHome(context.state.jwt.token)
-        .then(response => {
-          context.commit('setTutorInfo', { tutorInfo: response.data })
-        })
+    async getTutorHome(context: any) {
+      try {
+        const response = await Api.getTutorHome(localStorage.access_token);
+        context.commit('setTutorInfo', { tutorInfo: response.data });
+        return null;
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
     },
-    getCheckPoints(context: any, payload: any) {
-      return Api.getCheckPoints(context.state.jwt.token, payload)
-        .then(response => {
-          console.log(response.data)
-          context.commit('setCurrentCheckpoints', { checkpoints: response.data })
-        })
-        .catch(error => {
-          console.log(error);
-        })
+    async getCheckpoints(context: any, payload: any) {
+      try {
+        const response = await Api.getCheckpoints(localStorage.access_token, payload);
+        context.commit('setCurrentCheckpoints', response.data);
+        return null;
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
     },
     async addNewSubject (context: any, payload: any) {
       try {
-        await Api.addNewSubject(context.state.jwt.token, payload);
+        await Api.addNewSubject(localStorage.access_token, payload);
         context.commit('updateTutorInfo', { newInfo: payload });
         return null;
-      } catch(error) {
-        return error;
+      } 
+      catch (error) {
+        return error.response.data.msg;
       }
     },
-    addCheckPoint(context: any, payload: any) {
-      return Api.addCheckPoint(context.state.jwt.token, payload)
-        .then(response => {
-          context.commit('updateCurrentCheckpoints', { checkpoint: payload.checkpoint });
-        })
+    async addCheckpoints(context: any, payload: any) {
+      try {
+        await Api.addCheckpoints(localStorage.access_token, payload);
+        context.commit('updateCurrentCheckpoints', {checkpoints: payload.checkpoints});
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
     },
-    getProgress(context: any, payload: any) 
-    {
-      return Api.getProgress(context.state.jwt.token, payload)
-        .then(response => {
-          context.commit('setProgress', { progress: response.data })
-        })
-        .catch(error => {
-          console.log(error);
-        })
+    async getProgress(context: any, payload: any) {
+      try {
+        const response = await Api.getProgress(localStorage.access_token, payload);
+        context.commit('setProgress', { progress: response.data, checkpoint: payload.checkpoint_name });
+        return null;
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
     }
 }
 
@@ -110,8 +127,7 @@ const mutations = {
     },
     setJwtToken (state: any, payload: any) {
       console.log('setJwtToken payload = ', payload)
-      localStorage.token = payload.jwt.token
-      state.jwt = payload.jwt
+      localStorage.access_token = payload.jwt
     },
     setTutorInfo (state: any, payload: any) {
       console.log('setTutorInfo payload = ', payload);
@@ -121,6 +137,7 @@ const mutations = {
       Vue.set(state.userData, 'info', [...state.userData.info, payload.newInfo])
     },
     setStudentInfo (state: any, payload: any) {
+      console.log('setStudentInfo payload = ', payload.studentInfo)
       Vue.set(state.userData, 'info', payload.studentInfo);
     },
     setCurrentCheckpoints(state: any, payload: any) {
@@ -129,17 +146,24 @@ const mutations = {
     },
     setProgress(state:any, payload: any) {
       console.log('setProgress payload = ', payload);
-      state.progress = payload.progress;
+      Vue.set(state.progress, payload.checkpoint, payload.progress);
     },
     updateCurrentCheckpoints(state: any, payload: any) {
-      state.currentCheckpoints.push(payload.checkpoint); 
+      state.currentCheckpoints = [...state.currentCheckpoints, ...payload.checkpoints]
+    },
+    deleteJwtToken (state: any, payload: any) {
+      console.log('deleteJwtToken')
+      localStorage.access_token = '';
     }
 }
 
 const getters = {  
     // reusable data accessors
     isAuthenticated (state: any) {
-      return isValidJwt(state.jwt.token)
+      console.log('auth ', !!localStorage.access_token)
+      const access_token = localStorage.access_token;
+      return !!localStorage.access_token
+      //return isValidJwt(state.jwt.token)
     },
 }
 

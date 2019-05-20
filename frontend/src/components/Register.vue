@@ -98,26 +98,14 @@ export default class Register extends Vue {
     return this.tabs[this.currentTab][1]
   }
 
-  mounted () {
-    EventBus.$on('failedRegistering', (msg: any) => {
-      this.errorMsg = msg
-    })
-  }
-
-  beforeDestroy () {
-    EventBus.$off('failedRegistering')
-  }
-
-  register () {
-    this.$store.dispatch('register', { type: this.currentType, form: this.form })
-        .then(() => {
-            console.log('push ' +`/${this.currentType}/home`)
-            this.$router.push(`/${this.currentType}/home`)})
+  async register () {
+    const error = await this.$store.dispatch('register', { type: this.currentType, form: this.form })
+    if (error) {
+      this.errorMsg = error;
+    }    
+    else {
+      this.$router.push(`/${this.currentType}/home`);
+    }
   }
 }
 </script>
-
-
-<style>
-
-</style>

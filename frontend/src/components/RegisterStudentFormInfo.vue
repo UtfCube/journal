@@ -14,18 +14,7 @@
         </div>
     </div>
 </template>
-<!--
-<script>
-export default {
-    props: ['value'],
-    methods: {
-        update(key, value) {
-            this.$emit('input', { ...this.value, [key]: value });
-        }
-    }
-}
-</script>
--->
+
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
@@ -41,9 +30,4 @@ export default class RsfInfo extends Vue {
     }
 }
 </script>
-
-
-<style>
-
-</style>
 
