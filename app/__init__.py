@@ -25,14 +25,14 @@ def check_if_token_in_blacklist(decrypted_token):
     jti = decrypted_token['jti']
     return models.RevokedTokenModel.is_jti_blacklisted(jti)
 
-from app import views, resources, models, parsers, services, exceptions
+from app import views, resources, models, parsers, services, exceptions, modules
 
 api.add_resource(resources.TutorRegistration, '/api/register/tutor')
 api.add_resource(resources.StudentRegistration, '/api/register/student')
-api.add_resource(resources.UserLogin, '/api/login')
-api.add_resource(resources.UserLogoutAccess, '/api/logout/access')
-api.add_resource(resources.UserLogoutRefresh, '/api/logout/refresh')
-api.add_resource(resources.TokenRefresh, '/api/token/refresh')
+api.add_resource(modules.UserLogin, '/api/login')
+api.add_resource(modules.UserLogoutAccess, '/api/logout/access')
+api.add_resource(modules.UserLogoutRefresh, '/api/logout/refresh')
+api.add_resource(modules.TokenRefresh, '/api/token/refresh')
 api.add_resource(resources.TutorHome, '/api/tutor/home')
 api.add_resource(resources.GroupCpProgress, '/api/tutor/<subject>/<group_id>/<cp_name>')
 api.add_resource(resources.Checkpoints, '/api/tutor/<subject>/<group_id>')

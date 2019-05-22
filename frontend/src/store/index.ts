@@ -9,6 +9,7 @@ Vue.use(Vuex)
 
 const state = {  
   // single source of data
+  access_token: "",
   userData: {},
   currentCheckpoints: [],
   progress: [],
@@ -46,7 +47,7 @@ const actions = {
     },
     async logout (context: any) {
       try {
-        await Api.logout(localStorage.access_token);
+        await Api.logout(state.access_token);
         context.commit('deleteJwtToken');
         return null;
       }
@@ -56,7 +57,7 @@ const actions = {
     },
     async getStudentHome (context: any) {
       try { 
-        const response = await Api.getStudentHome(localStorage.access_token)
+        const response = await Api.getStudentHome(context.state.access_token)
         context.commit('setStudentInfo', { studentInfo: response.data })
         return null
       } catch (error) {
@@ -65,7 +66,7 @@ const actions = {
     },
     async getTutorHome(context: any) {
       try {
-        const response = await Api.getTutorHome(localStorage.access_token);
+        const response = await Api.getTutorHome(context.state.access_token);
         context.commit('setTutorInfo', { tutorInfo: response.data });
         return null;
       }
@@ -75,7 +76,7 @@ const actions = {
     },
     async getCheckpoints(context: any, payload: any) {
       try {
-        const response = await Api.getCheckpoints(localStorage.access_token, payload);
+        const response = await Api.getCheckpoints(context.state.access_token, payload);
         context.commit('setCurrentCheckpoints', response.data);
         return null;
       }
@@ -85,7 +86,7 @@ const actions = {
     },
     async addNewSubject (context: any, payload: any) {
       try {
-        await Api.addNewSubject(localStorage.access_token, payload);
+        await Api.addNewSubject(context.state.access_token, payload);
         context.commit('updateTutorInfo', { newInfo: payload });
         return null;
       } 
@@ -95,7 +96,7 @@ const actions = {
     },
     async addCheckpoints(context: any, payload: any) {
       try {
-        await Api.addCheckpoints(localStorage.access_token, payload);
+        await Api.addCheckpoints(context.state.access_token, payload);
         context.commit('updateCurrentCheckpoints', {checkpoints: payload.checkpoints});
       }
       catch (error) {
@@ -104,7 +105,7 @@ const actions = {
     },
     async getProgress(context: any, payload: any) {
       try {
-        const response = await Api.getProgress(localStorage.access_token, payload);
+        const response = await Api.getProgress(context.state.access_token, payload);
         context.commit('setProgress', { progress: response.data, checkpoint: payload.checkpoint_name });
         return null;
       }
@@ -127,7 +128,8 @@ const mutations = {
     },
     setJwtToken (state: any, payload: any) {
       console.log('setJwtToken payload = ', payload)
-      localStorage.access_token = payload.jwt
+      state.access_token = payload.jwt;
+      //localStorage.access_token = payload.jwt
     },
     setTutorInfo (state: any, payload: any) {
       console.log('setTutorInfo payload = ', payload);
@@ -153,17 +155,15 @@ const mutations = {
     },
     deleteJwtToken (state: any, payload: any) {
       console.log('deleteJwtToken')
-      localStorage.access_token = '';
+      state.access_token = "";
+      //localStorage.access_token = '';
     }
 }
 
 const getters = {  
     // reusable data accessors
     isAuthenticated (state: any) {
-      console.log('auth ', !!localStorage.access_token)
-      const access_token = localStorage.access_token;
-      return !!localStorage.access_token
-      //return isValidJwt(state.jwt.token)
+      return isValidJwt(state.access_token);
     },
 }
 
