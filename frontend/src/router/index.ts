@@ -13,9 +13,6 @@ function beforeEnter (to: any, from: any, next: any) {
 
 const routerOptions = [
   { 
-    path: '/', 
-    component: 'HelloWorld' 
-  }, { 
     path: '/login',
     name: 'login', 
     component: 'Login' 

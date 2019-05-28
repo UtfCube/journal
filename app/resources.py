@@ -49,11 +49,50 @@ class TutorHome(Resource):
             print(e)
             return InternalError().to_json()
 
+class GroupCpProgress(Resource):
+    @AuthUser
+    def get(self, current_user, subject, group_id, cp_name):
+        try:
+            progress = tutor_service.get_group_cp_progress(current_user, subject, group_id, cp_name)
+            return progress
+        except BaseException as e:
+            return e.to_json()
+        except Exception as e:
+            print(e)
+            return InternalError().to_json()
+
+class Progress(Resource):
+    @AuthUser
+    def get(self, current_user, subject, group_id):
+        try:
+            progress = tutor_service.get_group_progress(current_user, subject, group_id)
+            return progress
+        except BaseException as e:
+            return e.to_json()
+        except Exception as e:
+            print(e)
+            return InternalError().to_json()
+    
+    @AuthUser
+    def post(self, current_user, subject, group_id):
+        data = request.get_json()
+        try:
+            tutor_service.update_group_progress(current_user, subject, group_id, data)
+            return {
+                'msg': 'Table succesfully updated'
+            }
+        except BaseException as e:
+            return e.to_json()
+        except Exception as e:
+            print(e)
+            return InternalError().to_json()
+
 class Checkpoints(Resource):
     @AuthUser
     def get(self, current_user, subject, group_id):
         try:
             checkpoints = tutor_service.get_checkpoints(current_user, subject, group_id)
+            print(checkpoints)
             return checkpoints
         except BaseException as e:
             return e.to_json()
@@ -69,33 +108,6 @@ class Checkpoints(Resource):
             tutor_service.add_checkpoints(current_user, subject, group_id, data)
             return {
                 'msg': 'Checkpoints succesfully created'
-            }
-        except BaseException as e:
-            return e.to_json()
-        except Exception as e:
-            print(e)
-            return InternalError().to_json()
-
-class GroupCpProgress(Resource):
-    @AuthUser
-    def get(self, current_user, subject, group_id, cp_name):
-        try:
-            progress = tutor_service.get_group_cp_progress(current_user, subject, group_id, cp_name)
-            return progress
-        except BaseException as e:
-            return e.to_json()
-        except Exception as e:
-            print(e)
-            return InternalError().to_json()
-
-    @AuthUser
-    def post(self, current_user, subject, group_id, cp_name):
-        #TODO допилить парсер
-        data = request.get_json()
-        try:
-            tutor_service.add_group_cp_progress(current_user, subject, group_id, cp_name, data)
-            return {
-                'msg': 'Info succesfully updated'
             }
         except BaseException as e:
             return e.to_json()

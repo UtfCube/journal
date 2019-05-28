@@ -1,7 +1,3 @@
-import Vue from 'vue'
-
-export const EventBus = new Vue()
-
 export function isValidJwt (jwt: string) {
   console.log(!!jwt);
   return !!jwt;
@@ -15,3 +11,9 @@ export function isValidJwt (jwt: string) {
   return now < exp
   */
 }
+
+export const DialogError = {
+  title: 'Ошибка',
+  message: '',
+  type: 'is-danger',
+};

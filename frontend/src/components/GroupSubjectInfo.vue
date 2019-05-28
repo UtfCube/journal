@@ -3,9 +3,8 @@
         <section class="hero is-primary">
             <div class="hero-body">
                 <div class="container has-text-centered">
-                    <h2 class="title">Контрольные точки</h2>
+                    <h2 class="title">Таблица успеваемости</h2>
                     <p class="subtitle">По предмету {{ $route.params.subject_name }} группы {{ $route.params.group_id }}</p>
-                    <p v-if="error" class="subtitle error-msg">{{ error }}</p>
                 </div>
             </div>
         </section>
@@ -14,47 +13,6 @@
           <div class="control">
             <input type="text" class="input" id="name" v-model="cp_name">
           </div>
-        </div>
-        <div class="field" v-for="id in ids" :key="id">
-          <label class="label" for="name">Поле:</label>
-          <div class="control">
-            <input type="text" class="input" id="name" v-model="cp_fields[id - 1]">
-          </div>
-        </div>
-        <!--
-        <b-field label="Дата сдачи:">
-            <b-datepicker v-model="checkpoint.posting_date"
-                :first-day-of-week="1"
-                placeholder="Нажмите для выбора...">
-
-                <button class="button is-primary"
-                    @click="checkpoint.posting_date = new Date()">
-                    <b-icon icon="calendar-today"></b-icon>
-                    <span>Сегодня</span>
-                </button>
-
-        </b-field>
-        <b-field label="Крайняя дата сдачи:">
-            <b-datepicker v-model="checkpoint.critical_date"
-                :first-day-of-week="1"
-                placeholder="Нажмите для выбора...">
-
-                <button class="button is-primary"
-                    @click="checkpoint.critical_date = new Date()">
-                    <b-icon icon="calendar-today"></b-icon>
-                    <span>Сегодня</span>
-                </button>
-
-                <button class="button is-danger"
-                    @click="checkpoint.critical_date = null">
-                    <b-icon icon="close"></b-icon>
-                    <span>Очистить</span>
-                </button>
-            </b-datepicker>
-        </b-field>
-        -->
-        <div class="control">
-          <a class="button is-primary" @click="addField">Добавить поле</a>
         </div>
         <div class="control">
           <a class="button is-primary" @click="addCheckpoint">Добавить контрольную точку</a>
@@ -66,15 +24,6 @@
                     <b-table-column field="name" label="Название">
                         {{ props.row.name }}
                     </b-table-column>
-
-                    <b-table-column field="fields" label="Поля">
-                        <ul>
-                            <li v-for="(field, index) in props.row.fields"
-                                :key="index">
-                            {{ field }}
-                            </li>
-                        </ul>
-                    </b-table-column>
                 </template>
             </b-table>
         </section>
@@ -82,6 +31,39 @@
           <a class="button is-primary" @click="saveCheckpoints">Сохранить контрольные точки</a>
         </div>
         <section>
+            <!--<b-table 
+                :data="table"
+                :selected.sync="selected" 
+                :hoverable="true" 
+                :striped="true"
+                focusable
+                paginated
+                per-page="5"
+                >
+                <template slot-scope="props">
+                    <b-table-column label="Имя">
+                        {{ props.row.lastname + ' ' + props.row.firstname + ' ' + props.row.patronymic }}
+                    </b-table-column>
+                    
+                    <b-table-column v-for="(value, key, index) in props.row.progress"
+                        :key="index"
+                        :label="key">
+                        <b-table :data="[value]">
+                            <template slot-scope="iprops">
+                                <b-table-column v-for="(ivalue, ikey, iindex) in iprops.row"
+                                :key="iindex"
+                                :label="ikey">
+                                    {{ ivalue }}
+                                </b-table-column>
+                            </template>
+                        </b-table>
+                    </b-table-column>
+                </template>
+            </b-table>-->
+            <p class="control">
+                <button v-if="!edit" class="button is-primary" @click="edit = !edit">Редактировать таблицу</button>
+                <button v-else class="button is-primary" @click="edit = !edit">Завершить редактирование</button>
+            </p>
             <b-table 
                 :data="checkpoints"
                 :selected.sync="selected" 
@@ -91,24 +73,43 @@
                 paginated
                 per-page="5"
                 detailed
-                @details-open="(row, index) => $store.dispatch('getProgress', { ...this.$route.params, checkpoint_name: row.name })"
                 >
                 <template slot-scope="props">
                     <b-table-column field="name" label="Название">
                         {{ props.row.name }}
                     </b-table-column>
-
-                    <b-table-column field="fields" label="Поля">
-                        <ul>
-                            <li v-for="(field, index) in props.row.fields"
-                                :key="index">
-                            {{ field }}
-                            </li>
-                        </ul>
-                    </b-table-column>
                 </template>
                 <template slot="detail" slot-scope="details">
-                    <b-table :data="getProgressByCheckpoint(details.row.name)"
+                    <b-table v-if="edit" :data="getProgressByCheckpoint(details.row.name)"
+                        :hoverable="true" 
+                        :striped="true">
+                        <template slot-scope="props">
+                            <b-table-column label="Имя">
+                                {{ props.row.lastname + ' ' + props.row.firstname + ' ' + props.row.patronymic }}
+                            </b-table-column>
+                            
+                            <b-table-column label="Оценка">
+                                <CheckpointInfo v-model="props.row.progress" property="mark" btype="number"/>
+                            </b-table-column>                          
+                             
+                            <b-table-column label="Число попыток сдачи">
+                                <CheckpointInfo v-model="props.row.progress" property="attempts" btype="number"/>   
+                            </b-table-column>
+
+                            <b-table-column label="Дата сдачи">
+                                <CheckpointInfo v-model="props.row.progress" property="checkpoint_date" btype="date"/>    
+                            </b-table-column>
+
+                            <b-table-column label="Срок сдачи">
+                                <CheckpointInfo v-model="props.row.progress" property="deadline" btype="date"/>    
+                            </b-table-column>
+
+                            <b-table-column label="Признаки плагиата">
+                                <CheckpointInfo v-model="props.row.progress" property="plagiarism" btype="text"/>    
+                            </b-table-column>
+                        </template>
+                    </b-table>
+                    <b-table v-else :data="getProgressByCheckpoint(details.row.name)"
                         :hoverable="true" 
                         :striped="true">
                         <template slot-scope="props">
@@ -116,37 +117,60 @@
                                 {{ props.row.lastname + ' ' + props.row.firstname + ' ' + props.row.patronymic }}
                             </b-table-column>
 
-                            <b-table-column v-for="(value, key, index) in props.row.progress"
-                                :key="index"
-                                :label="key">
-                                {{ value }}
+                            <b-table-column label="Оценка">
+                                {{ props.row.progress.mark }}
+                            </b-table-column>                          
+                             
+                            <b-table-column label="Число попыток сдачи">
+                                {{ props.row.progress.attempts }}
+                            </b-table-column>
+
+                            <b-table-column label="Дата сдачи">
+                                {{ props.row.progress.checkpoint_date }}
+                            </b-table-column>
+
+                            <b-table-column label="Срок сдачи">
+                                {{ props.row.progress.deadline }}
+                            </b-table-column>
+
+                            <b-table-column label="Признаки плагиата">
+                                {{ props.row.progress.plagiarism }}
                             </b-table-column>
                         </template>
                     </b-table>
                 </template>
             </b-table>
+            <p class="control">
+                <button v-if="edit" class="button is-primary" @click="updateGradesTable">Сохранить изменения</button>
+            </p>
         </section>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import CheckpointInfo from './CheckpointInfo.vue';
+import { DialogError } from '@/utils';
 
-@Component
+@Component({
+    components: {CheckpointInfo}
+})
 export default class GroupSubjectInfo extends Vue {
-    private error: string = '';
-    private checkpoint: any = {
-        "name": "",
-        "fields": []
-    };
+    private newProgress: any = {};
     private cp_name: string = "";
-    private cp_fields: any = {};
     private newCheckpoints: any[] = [];
     private selected: any = {};
-    private ids: number[] = [];
+    private edit: boolean = false;
     
     async beforeMount() {
-        this.error = await this.$store.dispatch('getCheckpoints', this.$route.params);
+        let error = await this.$store.dispatch('getCheckpoints', this.$route.params);
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
+        error = await this.$store.dispatch('getGradesTable', this.$route.params);
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 
     get checkpoints() {
@@ -154,19 +178,26 @@ export default class GroupSubjectInfo extends Vue {
     }
 
     getProgressByCheckpoint(checkpoint: string) {
-        return this.$store.state.progress[checkpoint]
+        this.newProgress[checkpoint] = this.$store.getters.getProgressByCheckpoint(checkpoint);
+        return this.newProgress[checkpoint];
     }
 
     addCheckpoint() {
-        this.newCheckpoints.push({ name: this.cp_name, fields: Object.values(this.cp_fields)})
+        this.newCheckpoints.push({ name: this.cp_name})
     }
 
     async saveCheckpoints() {
-        this.error = await this.$store.dispatch('addCheckpoints', { ...this.$route.params, checkpoints: this.newCheckpoints });
+        const error = await this.$store.dispatch('addCheckpoints', { ...this.$route.params, checkpoints: this.newCheckpoints });
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 
-    addField() {
-        this.ids.push(this.ids.length + 1);
+    async updateGradesTable() {
+        const error = await this.$store.dispatch('updateGradesTable', { ...this.$route.params, newProgress: this.newProgress })
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 }
 </script>

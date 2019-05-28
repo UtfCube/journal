@@ -14,7 +14,6 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 app.config.from_object(Config)
 
-#db = SQLAlchemy(app, session_options={ "autoflush": False })
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -34,7 +33,8 @@ api.add_resource(modules.UserLogoutAccess, '/api/logout/access')
 api.add_resource(modules.UserLogoutRefresh, '/api/logout/refresh')
 api.add_resource(modules.TokenRefresh, '/api/token/refresh')
 api.add_resource(resources.TutorHome, '/api/tutor/home')
+api.add_resource(resources.Progress, '/api/tutor/<subject>/<group_id>')
+api.add_resource(resources.Checkpoints, '/api/tutor/<subject>/<group_id>/checkpoints')
 api.add_resource(resources.GroupCpProgress, '/api/tutor/<subject>/<group_id>/<cp_name>')
-api.add_resource(resources.Checkpoints, '/api/tutor/<subject>/<group_id>')
 api.add_resource(resources.StudentHome, '/api/student/home')
 api.add_resource(resources.SubjectProgress, '/api/student/<subject>')

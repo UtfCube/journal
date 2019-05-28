@@ -171,11 +171,12 @@ def add_group_checkpoints(mapper, connect, self):
     """trigger for the student model, that adds progress on existing checkpoints to a newly registered student"""
     student_id = (db.session.query(Student.user_id)
                     .filter(Student.group_id==self.group_id)).first()[0]
-    cp_fields_ids = (db.session.query(Progress.checkpoint_field_id)
+    cp_info = (db.session.query(Progress.checkpoint_id, Progress.deadline)
                 .filter(Progress.student_id==student_id)).all()
-    for id in cp_fields_ids:
-        progress = Progress(checkpoint_field_id=id,
-                            student_id=self.user_id)
+    for info in cp_info:
+        progress = Progress(checkpoint_id=info[0],
+                            student_id=self.user_id,
+                            deadline=info[1])
         self.progress.append(progress)
 
 
@@ -186,17 +187,8 @@ class Checkpoint(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False)
     tgs_id = db.Column(db.Integer, db.ForeignKey('tgs.id'), nullable=False)
-    fields = db.relationship('CheckpointField', lazy='dynamic',
-        backref=db.backref('checkpoint', lazy=True), cascade='all,delete-orphan') 
-
-class CheckpointField(BaseModel):
-    """Model for checkpoints_fields table"""
-    __tablename__ = "checkpoints_fields"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(40), nullable=False)
-    checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoints.id'), nullable=False)
     progress = db.relationship('Progress', lazy='dynamic',
-        backref=db.backref('checkpoint_field', lazy=True), cascade='all,delete-orphan')
+        backref=db.backref('checkpoint', lazy=True), cascade='all,delete-orphan')
 
 class Progress(BaseModel):
     """Model for the progress table"""
@@ -204,5 +196,9 @@ class Progress(BaseModel):
 
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.user_id'), nullable=False)
-    checkpoint_field_id = db.Column(db.Integer, db.ForeignKey('checkpoints_fields.id'), nullable=False)
-    passed = db.Column(db.Boolean)
+    checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoints.id'), nullable=False)
+    mark = db.Column(db.Integer)
+    deadline = db.Column(db.Date)
+    attempts = db.Column(db.Integer, default=0)
+    plagiarism = db.Column(db.String(1000))
+    checkpoint_date = db.Column(db.Date)

@@ -11,8 +11,9 @@ const state = {
   // single source of data
   access_token: "",
   userData: {},
+  gradesTable: [],
   currentCheckpoints: [],
-  progress: [],
+  progress: {},
 }
 
 const actions = {  
@@ -84,6 +85,25 @@ const actions = {
         return error.response.data.msg;
       }
     },
+    async getGradesTable(context: any, payload: any) {
+      try {
+        const response = await Api.getGradesTable(context.state.access_token, payload);
+        context.commit('setGradesTable', { gradesTable: response.data });
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
+    },
+    async updateGradesTable(context: any, payload: any) {
+      try {
+        await Api.updateGradesTable(context.state.access_token, payload);
+        context.commit('updateGradesTable', { newProgress: payload.newProgress })
+        return null;
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
+    },
     async addNewSubject (context: any, payload: any) {
       try {
         await Api.addNewSubject(context.state.access_token, payload);
@@ -135,6 +155,19 @@ const mutations = {
       console.log('setTutorInfo payload = ', payload);
       Vue.set(state.userData, 'info', payload.tutorInfo)
     },
+    updateProgress(state: any, payload: any) {
+      console.log("update progress", payload)
+      Vue.set(payload.progress, payload.property, payload.value);
+    },
+    updateGradesTable(state: any, payload: any) {
+      for (let checkpoint in payload.newProgress) {
+        for (let user_info of payload.newProgress[checkpoint]) {
+          let pr = state.gradesTable.find((x: any) => x.user_id == user_info.user_id)
+          Vue.set(pr.progress, checkpoint, user_info.progress)
+        }
+      }
+    },
+
     updateTutorInfo (state: any, payload: any) {
       Vue.set(state.userData, 'info', [...state.userData.info, payload.newInfo])
     },
@@ -149,6 +182,10 @@ const mutations = {
     setProgress(state:any, payload: any) {
       console.log('setProgress payload = ', payload);
       Vue.set(state.progress, payload.checkpoint, payload.progress);
+    },
+    setGradesTable(state: any, payload: any) {
+      console.log('setGradesTable payload = ', payload);
+      state.gradesTable = payload.gradesTable;
     },
     updateCurrentCheckpoints(state: any, payload: any) {
       state.currentCheckpoints = [...state.currentCheckpoints, ...payload.checkpoints]
@@ -165,6 +202,27 @@ const getters = {
     isAuthenticated (state: any) {
       return isValidJwt(state.access_token);
     },
+
+    getProgressByCheckpoint: (state: any) => (checkpoint: string) => {
+      let pr = state.gradesTable.filter((x: any) => !!x.progress[checkpoint]).map((x: any) => { 
+        return {
+          firstname: x.firstname,
+          lastname: x.lastname,
+          patronymic: x.patronymic,
+          user_id: x.user_id,
+          progress: x.progress[checkpoint]
+        }
+      });
+      return pr;
+    },
+    getNewProgress(state: any) {
+      return state.gradesTable.map((x: any) => {
+        return {
+          user_id: x.user_id,
+          progress: {}
+        }
+      });
+    }
 }
 
 const store = new Vuex.Store({
