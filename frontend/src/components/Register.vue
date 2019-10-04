@@ -4,7 +4,6 @@
       <div class="hero-body">
         <div class="container has-text-centered">
           <h2 class="title">Регистрация</h2>
-          <p class="subtitle error-msg">{{ errorMsg }}</p>
         </div>
       </div>
     </section>
@@ -63,7 +62,7 @@
           </div>
         </div>
         <div class="control">
-          <a class="button is-large is-primary" @click="register">Зарегестрироваться</a>
+          <a class="button is-large is-primary" @click="register">Зарегистрироваться</a>
         </div>
 
       </div>
@@ -73,7 +72,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { EventBus } from '@/utils';
+import { DialogError } from '@/utils';
 import RtfInfo from '@/components/RegisterTutorFormInfo.vue';
 import RsfInfo from '@/components/RegisterStudentFormInfo.vue';
 
@@ -101,8 +100,8 @@ export default class Register extends Vue {
   async register () {
     const error = await this.$store.dispatch('register', { type: this.currentType, form: this.form })
     if (error) {
-      this.errorMsg = error;
-    }    
+        this.$dialog.alert({ ...DialogError, message: error });
+      }   
     else {
       this.$router.push(`/${this.currentType}/home`);
     }

@@ -43,10 +43,10 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { DialogError } from '@/utils';
 
 @Component
 export default class Progress extends Vue {
-    private error: string = '';
     private selected: any = {};
     
     get username() {
@@ -57,8 +57,11 @@ export default class Progress extends Vue {
         return this.$store.state.progress;
     }
     
-    beforeMount() {
-        this.$store.dispatch('getProgress', this.$route.params.subject);
+    async beforeMount() {
+        const error = await this.$store.dispatch('getProgress', this.$route.params.subject);
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 }
 </script>
