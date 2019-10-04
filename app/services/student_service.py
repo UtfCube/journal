@@ -12,10 +12,8 @@ class StudentService:
         if group is None:
             group = Group(id=data['group_id'])
             group.add_to_db()
-        student = Student(lastname=data['lastname'],
-                            firstname=data['firstname'],
-                            patronymic=data['patronymic'],
-                            rank=data['rank'], 
+        student = Student(fio=data['fio'],
+                            fullname=data['fullname'],
                             admission_year=data['admission_year'], 
                             group_id=group.id)
         student.account = user

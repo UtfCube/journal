@@ -13,6 +13,15 @@ def AuthUser(func):
         return func(self, current_user, *args, **kwargs)
     return wrapper
 
+def is_admin(func):
+    @wraps(func)
+    def wrapper(self, current_user, *args, **kwargs):
+        user = user_service.find_by_username(current_user)    
+        if user.is_admin == True:
+            return func(self, current_user, *args, **kwargs)
+        else:
+            raise Exception('user is not admin')
+    return wrapper
 
 class UserLogin(Resource):
     def post(self):

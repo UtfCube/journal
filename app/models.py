@@ -63,9 +63,10 @@ class User(BaseModel):
     """Model for the users table"""
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), nullable=False, index=True, unique=True)
     password_hash = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
     tutor = db.relationship('Tutor', backref='account', uselist=False, lazy=True)
     student = db.relationship('Student', backref='account', uselist=False, lazy=True)
 
@@ -101,10 +102,7 @@ class Person(BaseModel):
     """Model for the persons"""
     __abstract__ = True
 
-    firstname = db.Column(db.String(20), nullable=False)
-    lastname = db.Column(db.String(40), nullable=False)
-    patronymic = db.Column(db.String(40), nullable=False)
-    rank = db.Column(db.String(20), nullable=False) 
+    fio = db.Column(db.String(200), nullable=False)
 
 class AssociationTGS(BaseModel):
     """Model for the tgs table"""
@@ -122,7 +120,6 @@ class Tutor(Person):
     __tablename__ = "tutors"
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, autoincrement=False, nullable=False)
-    degree = db.Column(db.String(10))
     tgs = db.relationship('AssociationTGS', lazy='dynamic',
         backref=db.backref('tutor', lazy=True), cascade='all,delete-orphan')
     @classmethod
@@ -158,6 +155,7 @@ class Student(Person):
     __tablename__ = "students"
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, autoincrement=False, nullable=False)
+    fullname = db.Column(db.String(30), nullable=False)
     admission_year = db.Column(db.Integer, nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     progress = db.relationship('Progress', backref=db.backref('student', lazy=True), lazy='dynamic', cascade='all,delete-orphan')

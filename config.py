@@ -9,6 +9,7 @@ POSTGRES = {
 }
 
 class Config:
+    ADMIN_FOLDER = './configs'
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-shall-not-pass'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://{user}:{pw}@{host}:{port}/{db}'.format(**POSTGRES)
     SQLALCHEMY_TRACK_MODIFICATIONS = False

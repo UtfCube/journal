@@ -1,9 +1,13 @@
 from flask_restful import Resource
 from app.parsers import *
-from app.services import tutor_service, student_service, user_service, token_service
+from app.services import tutor_service, student_service, user_service, token_service, admin_service
 from app.exceptions import BaseException, InternalError
-from app.modules import AuthUser
+from app.modules import AuthUser, is_admin
 from flask import request
+from werkzeug.utils import secure_filename
+from app import app
+import os
+import csv
 
 class TutorRegistration(Resource):
     def post(self):
@@ -48,6 +52,37 @@ class TutorHome(Resource):
         except Exception as e:
             print(e)
             return InternalError().to_json()
+
+def save_file(folder, file):
+    filename = secure_filename(file.filename)
+    path = os.path.join(folder, filename)
+    file.save(path)
+    return path
+
+class AdminHome(Resource):
+    @AuthUser
+    @is_admin
+    def post(self, current_user):
+        files = request.files
+        results = {}
+        if 'students' in files:
+            students = files['students']
+            path = save_file(app.config['ADMIN_FOLDER'], students)
+            with open(path, 'r') as f:
+                reader = csv.reader(f, delimiter=';')
+                res = admin_service.create_students(list(reader)[1::])
+                results['students'] = res
+        if 'tutors' in files:
+            tutors = files['tutors']
+            path = save_file(app.config['ADMIN_FOLDER'], tutors)
+            with open(path, 'r') as f:
+                reader = csv.reader(f, delimiter=';')
+                res = admin_service.create_tutors(list(reader)[1::])
+                results['tutors'] = res
+        return {
+            'msg': 'success', 
+            'res': results
+        }
 
 class Checkpoints(Resource):
     @AuthUser

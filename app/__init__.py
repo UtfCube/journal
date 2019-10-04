@@ -38,3 +38,4 @@ api.add_resource(resources.GroupCpProgress, '/api/tutor/<subject>/<group_id>/<cp
 api.add_resource(resources.Checkpoints, '/api/tutor/<subject>/<group_id>')
 api.add_resource(resources.StudentHome, '/api/student/home')
 api.add_resource(resources.SubjectProgress, '/api/student/<subject>')
+api.add_resource(resources.AdminHome, '/api/admin/home')

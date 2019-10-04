@@ -1,8 +1,8 @@
-"""empty message
+"""initial migration
 
-Revision ID: 81f9e42d0869
+Revision ID: dd418c6080ae
 Revises: 
-Create Date: 2019-03-19 20:43:09.530496
+Create Date: 2019-10-02 17:00:03.526246
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '81f9e42d0869'
+revision = 'dd418c6080ae'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -35,15 +35,14 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=64), nullable=False),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
+    sa.Column('is_admin', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_username'), 'users', ['username'], unique=True)
     op.create_table('students',
-    sa.Column('firstname', sa.String(length=20), nullable=False),
-    sa.Column('lastname', sa.String(length=40), nullable=False),
-    sa.Column('patronymic', sa.String(length=40), nullable=False),
-    sa.Column('rank', sa.String(length=20), nullable=False),
+    sa.Column('fio', sa.String(length=200), nullable=False),
     sa.Column('user_id', sa.Integer(), autoincrement=False, nullable=False),
+    sa.Column('fullname', sa.String(length=30), nullable=False),
     sa.Column('admission_year', sa.Integer(), nullable=False),
     sa.Column('group_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['group_id'], ['groups.id'], ),
@@ -51,12 +50,8 @@ def upgrade():
     sa.PrimaryKeyConstraint('user_id')
     )
     op.create_table('tutors',
-    sa.Column('firstname', sa.String(length=20), nullable=False),
-    sa.Column('lastname', sa.String(length=40), nullable=False),
-    sa.Column('patronymic', sa.String(length=40), nullable=False),
-    sa.Column('rank', sa.String(length=20), nullable=False),
+    sa.Column('fio', sa.String(length=200), nullable=False),
     sa.Column('user_id', sa.Integer(), autoincrement=False, nullable=False),
-    sa.Column('degree', sa.String(length=10), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('user_id')
     )

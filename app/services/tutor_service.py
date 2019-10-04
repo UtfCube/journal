@@ -8,11 +8,7 @@ user_service = UserService()
 class TutorService:
     def create_tutor(self, data):
         user = user_service.create_user(data['username'], data['password'])
-        tutor = Tutor(lastname=data['lastname'],
-                        firstname=data['firstname'],
-                        patronymic=data['patronymic'],
-                        rank=data['rank'], 
-                        degree=data['degree'])
+        tutor = Tutor(fio=data['fio'])
         tutor.account = user
         tutor.add_to_db()
         db.session.commit()
