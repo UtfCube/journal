@@ -1,5 +1,5 @@
 from app import db
-from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, Progress, CheckpointField
+from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, Progress
 from .user_service import UserService
 from app.exceptions import UserNotExist, AssociationExist, AssociationNotExist, CheckpointNotExist, CheckpointExist, CheckpointFieldNotExist
 
@@ -58,12 +58,10 @@ class TutorService:
     def get_checkpoints(self, username, subject_name, group_id):
         tutor = self.find_tutor_by_username(username)
         tgs = self.find_tgs(tutor, subject_name, group_id)
+        print(tgs)
         res = {}
         checkpoints = tgs.checkpoints.all()
         res['checkpoints'] = Checkpoint.json_list(checkpoints, ['id', 'tgs_id'])
-        for i, checkpoint in enumerate(checkpoints):
-            #res['checkpoints'][i]['fields'] = Checkpoint.json_list(checkpoint.fields, ['id', 'checkpoint_id'])
-            res['checkpoints'][i]['fields'] = [ field.name for field in checkpoint.fields ]
         return res
 
     def add_checkpoints(self, username, subject_name, group_id, data):
@@ -75,18 +73,61 @@ class TutorService:
             cp_name = cp_json['name']
             if tgs.checkpoints.filter_by(name=cp_name).first():
                 raise CheckpointExist(cp_name)
-            checkpoint = Checkpoint(name=cp_name, tgs_id=tgs.id)
+            checkpoint = Checkpoint(tgs_id=tgs.id, **cp_json)
             db.session.add(checkpoint)
-            for cp_field_json in cp_json['fields']:
-                cp_field = CheckpointField(name=cp_field_json, checkpoint_id=checkpoint.id)
-                checkpoint.fields.append(cp_field)
             for student in group.students:
-                for cp_field in checkpoint.fields:
-                    progress = Progress(checkpoint_field_id=cp_field.id,
+                progress = Progress(checkpoint_id=checkpoint.id,
                                         student_id=student.user_id)
-                    student.progress.append(progress)
+                student.progress.append(progress)
         db.session.commit()
 
+    def update_group_progress(self, username, subject_name, group_id, data):
+        tutor = self.find_tutor_by_username(username)
+        tgs = self.find_tgs(tutor, subject_name, group_id)
+        for cp_name in data:
+            checkpoint = self.find_checkpoint_by_name(tgs, cp_name)
+            for user_info in data[cp_name]:
+                student = tgs.group.students.filter_by(user_id=user_info['user_id']).first()
+                if student is None:
+                    raise UserNotExist(user_info['user_id'])
+                Progress.query.filter_by(checkpoint_id=checkpoint.id, student_id=student.user_id).update(user_info['progress'])
+        """
+        for user_info in data:
+            for cp_name in user_info["progress"]:
+                checkpoint = self.find_checkpoint_by_name(tgs, cp_name)
+                student = tgs.group.students.filter_by(user_id=user_info['user_id']).first()
+                if student is None:
+                    raise UserNotExist(user_info['user_id'])
+                Progress.query.filter_by(checkpoint_id=checkpoint.id, student_id=student.user_id).update(user_info['progress'][cp_name])
+        """
+        db.session.commit()
+
+    def get_group_progress(self, username, subject_name, group_id):
+        tutor = self.find_tutor_by_username(username)
+        tgs = self.find_tgs(tutor, subject_name, group_id)
+        group = tgs.group
+        students = group.students.all()
+        progress = Student.json_list(students)
+        for i, student in enumerate(students):
+            cp_progress = (db.session.query(Checkpoint.name,
+                                Progress.mark, Progress.attempts,
+                                Progress.checkpoint_date, Progress.deadline, Progress.plagiarism,)
+                            .join(Progress)
+                            .filter(Progress.student_id == student.user_id)
+                            ).all()
+            temp = { x[0]: {
+                "mark": x[1],
+                "attempts": x[2],
+                "checkpoint_date": x[3].strftime("%Y-%m-%d") if x[3] is not None else x[3],
+                "deadline": x[4].strftime("%Y-%m-%d") if x[4] is not None else x[4],
+                "plagiarism": x[5]
+            } for x in cp_progress}
+            if progress[i].get('progress') is None:
+                progress[i]['progress'] = temp
+            else:
+                progress[i]['progress'].update(temp)
+        return progress
+    
     def get_group_cp_progress(self, username, subject_name, group_id, cp_name):
         tutor = self.find_tutor_by_username(username)
         tgs = self.find_tgs(tutor, subject_name, group_id)
@@ -95,32 +136,20 @@ class TutorService:
         students = group.students.all()
         progress = Student.json_list(students)
         for i, student in enumerate(students):
-            cp_progress = (db.session.query(CheckpointField.name,
-                                Progress.passed)
+            cp_progress = (db.session.query(Checkpoint.name,
+                                Progress.mark, Progress.attempts,
+                                Progress.checkpoint_date, Progress.deadline, Progress.plagiarism,)
                             .join(Progress)
-                            .filter(CheckpointField.checkpoint_id == checkpoint.id)
+                            .filter(Checkpoint.id == checkpoint.id)
                             .filter(Progress.student_id == student.user_id)
-                            ).all()
-            progress[i]['progress'] = dict(cp_progress)
-        return progress
-    
-    def add_group_cp_progress(self, username, subject_name, group_id, cp_name, data):
-        tutor = self.find_tutor_by_username(username)
-        tgs = self.find_tgs(tutor, subject_name, group_id)
-        checkpoint = self.find_checkpoint_by_name(tgs, cp_name)
-        for user_info in data:
-            student = tgs.group.students.filter_by(user_id=user_info['user_id']).first()
-            if student is None:
-                raise UserNotExist(user_info['user_id'])
-            for field_name, field_value in user_info['progress'].items():
-                progress_id = (db.session.query(CheckpointField.id)
-                            .join(Progress)
-                            .filter(CheckpointField.checkpoint_id == checkpoint.id)
-                            .filter(Progress.student_id == student.user_id)
-                            .filter(CheckpointField.name == field_name)
                             ).first()
-                if progress_id is None:
-                    raise CheckpointFieldNotExist(cp_name, field_name)
-                progress_id = progress_id[0] 
-                Progress.query.filter_by(checkpoint_field_id=progress_id, student_id=student.user_id).update({"passed": field_value})
-        db.session.commit()
+            print("progress", cp_progress)
+            if cp_progress is not None:
+                progress[i]['progress'] = {
+                "mark": cp_progress[1],
+                "attempts": cp_progress[2],
+                "checkpoint_date": cp_progress[3].strftime("%Y-%m-%d") if cp_progress[3] is not None else cp_progress[3],
+                "deadline": cp_progress[4].strftime("%Y-%m-%d") if cp_progress[4] is not None else cp_progress[4],
+                "plagiarism": cp_progress[5]
+                }
+        return progress

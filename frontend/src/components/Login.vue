@@ -4,7 +4,7 @@
       <div class="hero-body">
         <div class="container has-text-centered">
           <h2 class="title">Войти</h2>
-          <p class="subtitle error-msg">{{ errorMsg }}</p>
+          <!--<p class="subtitle error-msg">{{ errorMsg }}</p>-->
         </div>
       </div>
     </section>
@@ -42,22 +42,18 @@
 <script lang="ts">
 import { EventBus } from '@/utils'
 import { Component, Vue } from 'vue-property-decorator';
+import { DialogError } from '@/utils';
 
 @Component
 export default class Login extends Vue {
   private username: string = '';
   private password: string = '';
-  private errorMsg: string = '';
   private type: string = 'tutor';
-
-  get error() {
-    return this.$store.state.error;
-  }
 
   async authenticate () {
     const error = await this.$store.dispatch('login', { username: this.username, password: this.password })
     if (error) {
-      this.errorMsg = error;
+      this.$dialog.alert({ ...DialogError, message: error });
     }
     else {
       this.$router.push(`/${this.type}/home`);

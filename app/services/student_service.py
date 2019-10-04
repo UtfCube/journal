@@ -1,4 +1,4 @@
-from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, CheckpointField, Progress
+from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, Progress
 from .user_service import UserService
 from app import db
 from app.exceptions import UserNotExist, AssociationNotExist
@@ -43,6 +43,8 @@ class StudentService:
         return tutors
 
     def get_subject_progress(self, username, subject_name):
+        return ""
+        """
         student = self.find_student_by_username(username)
         tgs = AssociationTGS.query.filter_by(subject_name=subject_name, group_id=student.group_id).first()
         if tgs is None:
@@ -57,5 +59,6 @@ class StudentService:
                             .filter(Progress.student_id == student.user_id)
                             ).all()
             progress[i]["progress"] = dict(cp_progress)
+        """
         return progress
             

@@ -17,17 +17,22 @@ export default class Api {
         return axios.post(`/register/${type}`, userData)
     }
     public static getCheckpoints(jwt: string, params: any) {
-        return axios.get(`/tutor/${params.subject_name}/${params.group_id}`, { headers: { Authorization: `Bearer ${jwt}`}})
+        return axios.get(`/tutor/${params.subject_name}/${params.group_id}/checkpoints`, { headers: { Authorization: `Bearer ${jwt}`}})
     }
     public static addCheckpoints(jwt: string, payload: any) {
-        return axios.post(`/tutor/${payload.subject_name}/${payload.group_id}`, 
+        return axios.post(`/tutor/${payload.subject_name}/${payload.group_id}/checkpoints`, 
             { checkpoints: payload.checkpoints },
             { headers: { Authorization: `Bearer ${jwt}`}});
     }
-    /*
-    public static getProgress(jwt: string, subject: any) {
-        return axios.get(`/student/${subject}`, { headers: { Authorization: `Bearer ${jwt}`}});
-    }*/
+    public static getGradesTable(jwt: string, params: any) {
+        return axios.get(`/tutor/${params.subject_name}/${params.group_id}`,
+            { headers: { Authorization: `Bearer ${jwt}`}});
+    }
+    public static updateGradesTable(jwt: string, payload: any) {
+        return axios.post(`/tutor/${payload.subject_name}/${payload.group_id}`, 
+            payload.newProgress,
+            { headers: { Authorization: `Bearer ${jwt}`}});
+    }
     public static getProgress(jwt: string, params: any) {
         return axios.get(`/tutor/${params.subject_name}/${params.group_id}/${params.checkpoint_name}`,
             { headers: { Authorization: `Bearer ${jwt}`}});

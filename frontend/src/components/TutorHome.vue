@@ -4,7 +4,6 @@
             <div class="hero-body">
                 <div class="container has-text-centered">
                     <h2 class="title">Здравствуйте, {{ username }}</h2>
-                    <p class="subtitle error-msg">{{ error }}</p>
                 </div>
             </div>
         </section>
@@ -51,15 +50,18 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import { DialogError } from '@/utils';
 
 @Component
 export default class TutorHome extends Vue {
     private form: any = {};
-    private error: string = '';
     private selected: object = {};
 
     async beforeMount () {
-        this.error = await this.$store.dispatch('getTutorHome');
+        const error = await this.$store.dispatch('getTutorHome');
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 
     get username () {
@@ -71,7 +73,10 @@ export default class TutorHome extends Vue {
     }
 
     async add () {
-        this.error = await this.$store.dispatch('addNewSubject', { group_id: this.form.group, subject_name: this.form.subject });
+        const error = await this.$store.dispatch('addNewSubject', { group_id: this.form.group, subject_name: this.form.subject });
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 
     click(row: any) {
