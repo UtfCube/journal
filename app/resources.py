@@ -79,6 +79,16 @@ class AdminHome(Resource):
                 reader = csv.reader(f, delimiter=';')
                 res = admin_service.create_tutors(list(reader)[1::])
                 results['tutors'] = res
+        subjects = [x for x in files if 'subject' in x]
+        for subject in subjects:
+            subject_file = files[subject]
+            path = save_file(app.config['ADMIN_FOLDER'], subject_file)
+            with open(path, 'r') as f:
+                reader = list(csv.reader(f, delimiter=';'))
+                subject_name = reader[0]
+                checkpoints_list = reader[1::]
+                res = admin_service.create_subject(subject_name, checkpoints_list)
+                results[subject] = res
         return {
             'msg': 'success', 
             'res': results
