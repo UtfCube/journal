@@ -112,8 +112,8 @@ class AssociationTGS(BaseModel):
     tutor_id = db.Column(db.Integer, db.ForeignKey('tutors.user_id'), nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     subject_name = db.Column(db.String(128), db.ForeignKey('subjects.name'), nullable=False)
-    checkpoints = db.relationship('Checkpoint', lazy='dynamic',
-        backref=db.backref('tgs', lazy=True), cascade='all,delete-orphan') 
+    #checkpoints = db.relationship('Checkpoint', lazy='dynamic',
+    #    backref=db.backref('tgs', lazy=True), cascade='all,delete-orphan') 
 
 class Tutor(Person):
     """Model for the tutors table"""
@@ -145,6 +145,8 @@ class Subject(BaseModel):
 
     name = db.Column(db.String(128), primary_key=True)
     tgs = db.relationship('AssociationTGS', lazy='dynamic',
+        backref=db.backref('subject', lazy=True), cascade='all,delete-orphan') 
+    checkpoints = db.relationship('Checkpoint', lazy='dynamic',
         backref=db.backref('subject', lazy=True), cascade='all,delete-orphan') 
     @classmethod
     def find_by_name(cls, name):
@@ -183,7 +185,8 @@ class Checkpoint(BaseModel):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False)
-    tgs_id = db.Column(db.Integer, db.ForeignKey('tgs.id'), nullable=False)
+    #tgs_id = db.Column(db.Integer, db.ForeignKey('tgs.id'), nullable=False)
+    subject_name = db.Column(db.String(128), db.ForeignKey('subjects.name'), nullable=False)
     fields = db.relationship('CheckpointField', lazy='dynamic',
         backref=db.backref('checkpoint', lazy=True), cascade='all,delete-orphan') 
 
@@ -193,6 +196,8 @@ class CheckpointField(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(40), nullable=False)
     checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoints.id'), nullable=False)
+    is_hidden = db.Column(db.Boolean, default=False)
+    type = db.Column(db.String(1), nullable=True)
     progress = db.relationship('Progress', lazy='dynamic',
         backref=db.backref('checkpoint_field', lazy=True), cascade='all,delete-orphan')
 
@@ -203,4 +208,5 @@ class Progress(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('students.user_id'), nullable=False)
     checkpoint_field_id = db.Column(db.Integer, db.ForeignKey('checkpoints_fields.id'), nullable=False)
-    passed = db.Column(db.Boolean)
+    #passed = db.Column(db.Boolean)
+    res = db.Column(db.String(40))
