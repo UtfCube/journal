@@ -30,3 +30,17 @@ class Checkpoints(Resource):
         except Exception as e:
             print(e)
             return InternalError().to_json()
+
+    @auth_user
+    @is_role(['admin', 'tutor'])
+    def delete(self, current_user, subject):
+        #TODO допилить парсер
+        data = request.get_json()
+        try:
+            checkpoint_service.delete(subject, data)
+            return {'msg': 'Checkpoints has been succesfully deleted'}
+        except BaseException as e:
+            return e.to_json()
+        except Exception as e:
+            print(e)
+            return InternalError().to_json()

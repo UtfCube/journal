@@ -1,4 +1,5 @@
 from app import db
+from app.exceptions import SubjectNotExist
 from app.models import Subject, Checkpoint, CheckpointField
 
 class CheckpointService:
@@ -76,3 +77,11 @@ class CheckpointService:
         db.session.commit()
         checkpoints = subject.checkpoints.all()
         return Checkpoint.json_list(checkpoints)
+
+    def delete(self, subject_name, checkpoints_ids):
+        subject = Subject.query.filter_by(name=subject_name).first()
+        if subject is None: 
+            raise SubjectNotExist(subject_name)
+        for checkpoints_id in checkpoints_ids:
+            subject.checkpoints.filter_by(id=checkpoints_id).delete()
+        db.session.commit()

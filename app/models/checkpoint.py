@@ -10,4 +10,4 @@ class Checkpoint(BaseModel):
     #tgs_id = db.Column(db.Integer, db.ForeignKey('tgs.id'), nullable=False)
     subject_name = db.Column(db.String(128), db.ForeignKey('subjects.name'), nullable=False)
     fields = db.relationship('CheckpointField', lazy='dynamic',
-        backref=db.backref('checkpoint', lazy=True), cascade='all,delete-orphan') 
+        backref=db.backref('checkpoint', lazy=True), passive_deletes=True) 

@@ -42,6 +42,11 @@ class AssociationNotExist(BaseException):
         message = 'Association {} doesn\'t exist'.format(fields)
         super().__init__(message, 400)
 
+class SubjectNotExist(BaseException):
+    def __init__(self, subject_name):
+        message = 'Subject {} doesn\'t exist'.format(subject_name)
+        super().__init__(message, 400)
+
 class CheckpointExist(BaseException):
     def __init__(self, checkpoint_name):
         message = 'Checkpoint {} already exists'.format(checkpoint_name)
