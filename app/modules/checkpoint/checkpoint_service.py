@@ -1,3 +1,6 @@
+from app import db
+from app.models import Subject, Checkpoint, CheckpointField
+
 class CheckpointService:
     def from_csv(self, csv_list):
         for checkpoint_csv in csv_list:
@@ -42,6 +45,27 @@ class CheckpointService:
                     })
             yield checkpoint
 
-    def add(self, checkpoints):
-        for checkpoint in checkpoints:
-            pass
+    def add(self, subject_name, checkpoints_json):
+        subject = Subject.query.filter_by(name=subject_name).first()
+        if subject is None: 
+            subject = Subject(name=subject_name)
+            subject.add_to_db()
+        checkpoints = subject.checkpoints
+        for checkpoint_json in checkpoints_json:
+            checkpoint_name =  checkpoint_json['name']
+            checkpoint = checkpoints.filter_by(name=checkpoint_name).first()
+            if checkpoint is None:
+                checkpoint = Checkpoint(name=checkpoint_name)
+                checkpoints.append(checkpoint)
+            fields = checkpoint.fields
+            for field_json in checkpoint_json['fields']:
+                field_name = field_json['name']
+                field = fields.filter_by(name=field_name).first()
+                if field is None:
+                    field = CheckpointField(name=field_name)
+                    fields.append(field)
+                field.type = field_json.get('type', None)
+                field.is_hidden = field_json.get('is_hidden', False)
+        db.session.commit()
+        checkpoints = subject.checkpoints.all()
+        return Checkpoint.json_list(checkpoints)

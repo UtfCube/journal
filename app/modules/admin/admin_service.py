@@ -69,29 +69,7 @@ class AdminService:
             results.append(res)
         return results
 
-    def create_subject(self, subject_name, checkpoints_list):
+    def create_subject(self, subject_name, checkpoints):
         subject_name = subject_name[0]
-        subject = Subject.query.filter_by(name=subject_name).first()
-        if subject is None: 
-            subject = Subject(name=subject_name)
-            subject.add_to_db()
-        checkpoints_json = checkpoint_service.from_csv(checkpoints_list)
-        checkpoints = subject.checkpoints
-        for checkpoint_json in checkpoints_json:
-            checkpoint_name =  checkpoint_json['name']
-            checkpoint = checkpoints.filter_by(name=checkpoint_name).first()
-            if checkpoint is None:
-                checkpoint = Checkpoint(name=checkpoint_name)
-                checkpoints.append(checkpoint)
-            fields = checkpoint.fields
-            for field_json in checkpoint_json['fields']:
-                field_name = field_json['name']
-                field = fields.filter_by(name=field_name).first()
-                if field is None:
-                    field = CheckpointField(name=field_name)
-                    fields.append(field)
-                field.type = field_json.get('type', None)
-                field.is_hidden = field_json.get('is_hidden', False)
-        db.session.commit()
-        checkpoints = subject.checkpoints.all()
-        return Checkpoint.json_list(checkpoints)
+        checkpoints = checkpoint_service.from_csv(checkpoints)
+        return checkpoint_service.add(subject_name, checkpoints)
