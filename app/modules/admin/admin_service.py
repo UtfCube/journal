@@ -1,5 +1,6 @@
 from app.modules.tutor import TutorService
 from app.modules.student import StudentService
+from app.modules.checkpoint import CheckpointService
 import secrets
 import string
 import datetime
@@ -8,6 +9,7 @@ from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Che
 
 student_service = StudentService()
 tutor_service = TutorService()
+checkpoint_service = CheckpointService()
 
 class AdminService:
     def _generate_password(self):
@@ -73,54 +75,23 @@ class AdminService:
         if subject is None: 
             subject = Subject(name=subject_name)
             subject.add_to_db()
-        for checkpoint_info in checkpoints_list:
-            fields = checkpoint_info[1::]
-            field_count = len(fields)
-            checkpoint_name = checkpoint_info[0]
-            checkpoint = subject.checkpoints.filter_by(name=checkpoint_name).first()
+        checkpoints_json = checkpoint_service.from_csv(checkpoints_list)
+        checkpoints = subject.checkpoints
+        for checkpoint_json in checkpoints_json:
+            checkpoint_name =  checkpoint_json['name']
+            checkpoint = checkpoints.filter_by(name=checkpoint_name).first()
             if checkpoint is None:
                 checkpoint = Checkpoint(name=checkpoint_name)
-                subject.checkpoints.append(checkpoint)
-            mark = checkpoint.fields.filter_by(name='Оценка').first()
-            if mark is None:
-                mark = CheckpointField(name='Оценка', type='5')
-                checkpoint.fields.append(mark)
-            class_date = checkpoint.fields.filter_by(name='Дата проведения').first()
-            if class_date is None:
-                class_date = CheckpointField(name='Дата проведения')
-                checkpoint.fields.append(class_date)
-            if field_count > 0:
-                for field_name in fields:
-                    clean_field_name = field_name.replace('*', '').replace('+', '').replace('5', '')    
-                    field = checkpoint.fields.filter_by(name=clean_field_name).first()
-                    if field is None:
-                        field = CheckpointField(name=clean_field_name)
-                        checkpoint.fields.append(field)
-                    if field_name.startswith('*'):
-                        field.is_hidden = True
-                    if field_name.endswith('+'):
-                        field.type = '+'
-                    elif field_name.endswith('5'):
-                        field.type = '5'
-                    else:
-                        field.type = None
-                if field_count > 1:
-                    number_of_attempts = checkpoint.fields.filter_by(name='Число попыток сдачи').first()
-                    if number_of_attempts is None:
-                        number_of_attempts = CheckpointField(name='Число попыток сдачи')
-                        checkpoint.fields.append(number_of_attempts)
-                    completion_date = checkpoint.fields.filter_by(name='Дата сдачи').first()
-                    if completion_date is None:
-                        completion_date = CheckpointField(name='Дата сдачи')
-                        checkpoint.fields.append(completion_date)
-                    grace_period = checkpoint.fields.filter_by(name='Льготный срок сдачи').first()
-                    if grace_period is None:
-                        grace_period = CheckpointField(name='Льготный срок сдачи')
-                        checkpoint.fields.append(grace_period)
-                    deadline = checkpoint.fields.filter_by(name='Крайний срок сдачи').first()
-                    if deadline is None:
-                        deadline = CheckpointField(name='Крайний срок сдачи')
-                        checkpoint.fields.append(deadline)
+                checkpoints.append(checkpoint)
+            fields = checkpoint.fields
+            for field_json in checkpoint_json['fields']:
+                field_name = field_json['name']
+                field = fields.filter_by(name=field_name).first()
+                if field is None:
+                    field = CheckpointField(name=field_name)
+                    fields.append(field)
+                field.type = field_json.get('type', None)
+                field.is_hidden = field_json.get('is_hidden', False)
         db.session.commit()
         checkpoints = subject.checkpoints.all()
         return Checkpoint.json_list(checkpoints)
