@@ -1,7 +1,7 @@
 from functools import wraps
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.modules.user import UserService
-
+from app.exceptions import UserIsNotAdmin
 user_service = UserService()
 
 def auth_user(func):
@@ -19,7 +19,7 @@ def is_admin(func):
         if user.is_admin == True:
             return func(self, current_user, *args, **kwargs)
         else:
-            raise Exception('user is not admin')
+            raise UserIsNotAdmin(current_user)
     return wrapper
 
 def expect(validator):

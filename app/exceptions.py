@@ -15,6 +15,11 @@ class UserNotExist(BaseException):
         message = 'User {} doesn\'t exist'.format(username)
         super().__init__(message, 400)
 
+class UserIsNotAdmin(BaseException):
+    def __init__(self, username):
+        message = 'User {} isn\'t admin'.format(username)
+        super().__init__(message, 401)
+
 class WrongCredentials(BaseException):
     def __init__(self):
         message = 'Wrong credentials'
