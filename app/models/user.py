@@ -9,7 +9,7 @@ class User(BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), nullable=False, index=True, unique=True)
     password_hash = db.Column(db.String(128), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    role = db.Column(db.String(10), default='student')
     tutor = db.relationship('Tutor', backref='account', uselist=False, lazy=True)
     student = db.relationship('Student', backref='account', uselist=False, lazy=True)
 

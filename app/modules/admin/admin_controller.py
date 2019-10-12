@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from app.decorators import auth_user, is_admin
+from app.decorators import auth_user, is_role
 from flask import request
 from app import app
 from .admin_service import AdminService
@@ -17,7 +17,7 @@ def save_file(folder, file):
 
 class AdminHome(Resource):
     @auth_user
-    @is_admin
+    @is_role('admin')
     def post(self, current_user):
         files = request.files
         results = {}

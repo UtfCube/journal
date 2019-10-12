@@ -1,8 +1,8 @@
-"""empty message
+"""create admin
 
-Revision ID: d293b0801bcc
-Revises: dd418c6080ae
-Create Date: 2019-10-02 17:00:20.603432
+Revision ID: d2a068478419
+Revises: 69fabeccdd5c
+Create Date: 2019-10-13 01:12:20.297598
 
 """
 from alembic import op
@@ -12,17 +12,16 @@ from sqlalchemy import String, Integer, Boolean
 
 
 # revision identifiers, used by Alembic.
-revision = 'd293b0801bcc'
-down_revision = 'dd418c6080ae'
+revision = 'd2a068478419'
+down_revision = '69fabeccdd5c'
 branch_labels = None
 depends_on = None
-
 
 users_table = table('users',
     column('id', Integer),
     column('username', String),
     column('password_hash', String),
-    column('is_admin', Boolean))
+    column('role', String))
 
 
 def upgrade():
@@ -32,7 +31,7 @@ def upgrade():
                 'id': 1,
                 'username': 'admin',
                 'password_hash': generate_password_hash('admin'),
-                'is_admin': True
+                'role': 'admin'
             }
         ]
     )
