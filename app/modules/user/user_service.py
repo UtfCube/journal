@@ -1,4 +1,4 @@
-from app.models import User, Tutor, Student, Group, Subject, AssociationTGS
+from app.models import User
 from app.exceptions import UserExist, UserNotExist, WrongCredentials
 
 class UserService:
@@ -11,12 +11,4 @@ class UserService:
         user = User(username, password)
         user.add_to_db()
         return user
-    
-    def authenticate(self, username, password):
-        user = self.find_by_username(username)
-        if user is None:
-            raise UserNotExist(username)
-        if not user.check_password(password):
-            raise WrongCredentials()
-    
 

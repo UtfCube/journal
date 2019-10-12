@@ -1,6 +1,6 @@
 from app import db
 from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, Progress, CheckpointField
-from .user_service import UserService
+from app.modules.user import UserService
 from app.exceptions import UserNotExist, AssociationExist, AssociationNotExist, CheckpointNotExist, CheckpointExist, CheckpointFieldNotExist
 
 user_service = UserService()

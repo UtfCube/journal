@@ -1,11 +1,12 @@
 from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, CheckpointField, Progress
-from .user_service import UserService
+from app.modules.user import UserService
 from app import db
 from app.exceptions import UserNotExist, AssociationNotExist
 
 user_service = UserService()
 
 class StudentService:
+
     def create_student(self, data):
         user = user_service.create_user(data['username'], data['password'])
         group = Group.find_by_id(data['group_id'])

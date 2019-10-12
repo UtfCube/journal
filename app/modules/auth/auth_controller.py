@@ -1,35 +1,20 @@
-from functools import wraps
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_raw_jwt, jwt_refresh_token_required
 from flask_restful import Resource
 from app.parsers import user_login_parser
+from app.decorators import expect
 from app.exceptions import BaseException, InternalError
-from app.services import user_service, token_service
+from .auth_service import AuthService
 
-def AuthUser(func):
-    @wraps(func)
-    @jwt_required
-    def wrapper(self, *args, **kwargs):
-        current_user = get_jwt_identity()
-        return func(self, current_user, *args, **kwargs)
-    return wrapper
-
-def is_admin(func):
-    @wraps(func)
-    def wrapper(self, current_user, *args, **kwargs):
-        user = user_service.find_by_username(current_user)    
-        if user.is_admin == True:
-            return func(self, current_user, *args, **kwargs)
-        else:
-            raise Exception('user is not admin')
-    return wrapper
+auth_service = AuthService()
 
 class UserLogin(Resource):
-    def post(self):
+    @expect(user_login_parser)
+    def post(self, data):
         data = user_login_parser.parse_args()
         try:
-            user_service.authenticate(data['username'], data['password'])
-            access_token = token_service.create_access_token(identity=data['username'])
-            refresh_token = token_service.create_refresh_token(identity=data['username'])
+            auth_service.authenticate(data['username'], data['password'])
+            access_token = auth_service.create_access_token(identity=data['username'])
+            refresh_token = auth_service.create_refresh_token(identity=data['username'])
             return {
                 'msg': 'Logged in as {}'.format(data['username']),
                 'access_token': access_token,
@@ -46,7 +31,7 @@ class UserLogoutAccess(Resource):
     def post(self):
         jti = get_raw_jwt()['jti']
         try:
-            token_service.revoke_token(jti)
+            auth_service.revoke_token(jti)
             return {'msg': 'Access token has been revoked'}
         except Exception as e:
             print(e)
@@ -57,7 +42,7 @@ class UserLogoutRefresh(Resource):
     def post(self):
         jti = get_raw_jwt()['jti']
         try:
-            token_service.revoke_token(jti)
+            auth_service.revoke_token(jti)
             return {'msg': 'Refresh token has been revoked'}
         except Exception as e:
             print(e)
@@ -67,5 +52,5 @@ class TokenRefresh(Resource):
     @jwt_refresh_token_required
     def post(self):
         current_user = get_jwt_identity()
-        access_token = token_service.create_access_token(identity=current_user)
+        access_token = auth_service.create_access_token(identity=current_user)
         return {'access_token': access_token}

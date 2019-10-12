@@ -1,16 +1,13 @@
-from .user_service import UserService
-from .student_service import StudentService
-from .tutor_service import TutorService
+from app.modules.tutor import TutorService
+from app.modules.student import StudentService
 import secrets
 import string
 import datetime
 from app import db
 from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, Progress, CheckpointField
 
-user_service = UserService()
 student_service = StudentService()
 tutor_service = TutorService()
-
 
 class AdminService:
     def _generate_password(self):
