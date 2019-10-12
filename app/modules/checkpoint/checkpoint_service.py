@@ -2,6 +2,32 @@ from app import db
 from app.models import Subject, Checkpoint, CheckpointField
 
 class CheckpointService:
+    def add_base_fields(self, checkpoints):
+        for checkpoint in checkpoints:
+            fields = checkpoint['fields']
+            field_num = len(fields)
+            fields.append({
+                'name': 'Оценка',
+                'type': '5'
+            })
+            fields.append({
+                'name': 'Дата проведения'
+            })
+            if field_num > 1:
+                fields.append({
+                    'name': 'Число попыток сдачи'
+                })
+                fields.append({
+                    'name': 'Дата сдачи'
+                })
+                fields.append({
+                    'name': 'Льготный срок сдачи'
+                })
+                fields.append({
+                    'name': 'Крайний срок сдачи'
+                })
+            yield checkpoint
+
     def from_csv(self, csv_list):
         for checkpoint_csv in csv_list:
             checkpoint = {}
@@ -11,13 +37,6 @@ class CheckpointService:
             field_count = len(fields_csv)
             fields = []
             checkpoint['fields'] = fields
-            fields.append({
-                'name': 'Оценка',
-                'type': '5'
-            })
-            fields.append({
-                'name': 'Дата проведения'
-            })
             if field_count > 0:
                 for field_name in fields_csv:
                     field = {}
@@ -30,22 +49,10 @@ class CheckpointService:
                     elif field_name.endswith('5'):
                         field['type'] = '5'
                     fields.append(field)
-                if field_count > 1:
-                    fields.append({
-                        'name': 'Число попыток сдачи'
-                    })
-                    fields.append({
-                        'name': 'Дата сдачи'
-                    })
-                    fields.append({
-                        'name': 'Льготный срок сдачи'
-                    })
-                    fields.append({
-                        'name': 'Крайний срок сдачи'
-                    })
             yield checkpoint
 
     def add(self, subject_name, checkpoints_json):
+        checkpoints_json = self.add_base_fields(checkpoints_json)
         subject = Subject.query.filter_by(name=subject_name).first()
         if subject is None: 
             subject = Subject(name=subject_name)
