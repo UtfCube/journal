@@ -1,5 +1,5 @@
 from app import db
-from app.exceptions import SubjectNotExist
+from app.exceptions import SubjectNotExist, CheckpointNotExist, CheckpointFieldNotExist
 from app.models import Subject, Checkpoint, CheckpointField
 
 class CheckpointService:
@@ -78,12 +78,12 @@ class CheckpointService:
         checkpoints = subject.checkpoints.all()
         return Checkpoint.json_list(checkpoints)
 
-    def delete(self, subject_name, checkpoints_ids):
+    def delete(self, subject_name, checkpoints_names):
         subject = Subject.query.filter_by(name=subject_name).first()
         if subject is None: 
             raise SubjectNotExist(subject_name)
-        for checkpoints_id in checkpoints_ids:
-            subject.checkpoints.filter_by(id=checkpoints_id).delete()
+        for checkpoint_name in checkpoints_names:
+            subject.checkpoints.filter_by(name=checkpoint_name).delete()
         db.session.commit()
 
     def get_all(self, subject_name):
@@ -95,3 +95,15 @@ class CheckpointService:
         for i, checkpoint in enumerate(checkpoints):
             res[i]['fields'] = [ field.json(['id', 'checkpoint_id']) for field in checkpoint.fields.all() ]
         return res
+    
+    def find_field_by_name(self, subject_name, checkpoint_name, field_name):
+        subject = Subject.query.filter_by(name=subject_name).first()
+        if subject is None: 
+            raise SubjectNotExist(subject_name)
+        checkpoint = subject.checkpoints.filter_by(name=checkpoint_name).first()
+        if checkpoint is None:
+            raise CheckpointNotExist(checkpoint_name)
+        field = checkpoint.fields.filter_by(name=field_name).first()
+        if field is None:
+            raise CheckpointFieldNotExist(checkpoint_name, field_name)
+        return field

@@ -1,10 +1,12 @@
 from app import db
-from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, Progress, CheckpointField
+from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, Progress, CheckpointField, GroupInfo, DatesInfo
 from app.modules.user import UserService
+from app.modules.checkpoint import CheckpointService
 from app.exceptions import UserNotExist, AssociationExist, AssociationNotExist, CheckpointNotExist, CheckpointExist, CheckpointFieldNotExist
 from app.utils import generate_password
 
 user_service = UserService()
+checkpoint_service = CheckpointService()
 
 class TutorService:
     def add_base_info(self, tutor):
@@ -13,7 +15,7 @@ class TutorService:
 
     def create(self, data):
         self.add_base_info(data)
-        user = user_service.create_user(data['username'], data['password'])
+        user = user_service.create_user(data['username'], data['password'], role='tutor')
         tutor = Tutor(fio=data['fio'])
         tutor.account = user
         tutor.add_to_db()
@@ -59,6 +61,26 @@ class TutorService:
         association.subject = subject
         association.group = group
         tutor.tgs.append(association)
+        db.session.commit()
+
+    def add_dates(self, username, subject_name, group_id, cp_name, dates):
+        tutor = self.find_tutor_by_username(username)
+        tgs = self.find_tgs(tutor, subject_name, group_id)
+        group_info = tgs.group_info.first()
+        if group_info is None:
+            group_info = GroupInfo()
+            group_info.tgs = tgs
+            tgs.group_info.append(group_info)
+        for date in dates:
+            field = checkpoint_service.find_field_by_name(subject_name, cp_name, date['name'])
+            date_info = group_info.dates.filter_by(group_info_id=group_info.id, date_field_id=field.id).first()
+            if date_info is None:
+                date_info = DatesInfo()
+                date_info.group_info = group_info
+                date_info.checkpoint_field = field
+                field.dates_info.append(date_info)
+                group_info.dates.append(date_info)
+            date_info.date = date['date']
         db.session.commit()
 
     def get_checkpoints(self, username, subject_name, group_id):

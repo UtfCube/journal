@@ -13,9 +13,10 @@ class User(BaseModel):
     tutor = db.relationship('Tutor', backref='account', uselist=False, lazy=True)
     student = db.relationship('Student', backref='account', uselist=False, lazy=True)
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, role):
         self.username = username
         self.password_hash = generate_password_hash(password)
+        self.role = role
 
     @classmethod
     def find_by_username(cls, username):
