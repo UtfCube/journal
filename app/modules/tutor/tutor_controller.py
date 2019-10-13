@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from app.decorators import auth_user, expect
-from app.parsers import tutor_info_parser, association_parser
+from app.parsers import tutor_reg_parser, association_parser
 from app.modules.auth import AuthService
 from .tutor_service import TutorService
 from app.exceptions import BaseException, InternalError
@@ -10,7 +10,7 @@ auth_service = AuthService()
 
 class TutorRegistration(Resource):
 
-    @expect(tutor_info_parser)
+    @expect(tutor_reg_parser)
     def post(self, data):
         try:
             tutor_service.create_tutor(data)

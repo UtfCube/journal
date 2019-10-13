@@ -2,17 +2,23 @@ from app import db
 from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, Progress, CheckpointField
 from app.modules.user import UserService
 from app.exceptions import UserNotExist, AssociationExist, AssociationNotExist, CheckpointNotExist, CheckpointExist, CheckpointFieldNotExist
+from app.utils import generate_password
 
 user_service = UserService()
 
 class TutorService:
+    def add_base_info(self, tutor):
+        password = generate_password()
+        tutor['password'] = password
+
     def create_tutor(self, data):
+        self.add_base_info(data)
         user = user_service.create_user(data['username'], data['password'])
         tutor = Tutor(fio=data['fio'])
         tutor.account = user
         tutor.add_to_db()
         db.session.commit()
-        return tutor
+        return data
     
     def find_tutor_by_username(self, username):
         user = user_service.find_by_username(username)

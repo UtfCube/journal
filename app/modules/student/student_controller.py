@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from app.modules.auth import AuthService
 from .student_service import StudentService
-from app.parsers import student_info_parser
+from app.parsers import student_reg_parser
 from app.decorators import auth_user, expect
 from app.exceptions import BaseException, InternalError
 
@@ -9,7 +9,7 @@ auth_service = AuthService()
 student_service = StudentService()
 
 class StudentRegistration(Resource):
-    @expect(student_info_parser)
+    @expect(student_reg_parser)
     def post(self, data):
         try:
             student_service.create_student(data)

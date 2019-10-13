@@ -5,6 +5,11 @@ class BaseException(Exception):
     def to_json(self):
         return {'msg': self.message}, self.code
 
+class DataNotValid(BaseException):
+    def __init__(self):
+        message = 'Data isn\'t valid'
+        super().__init__(message, 400)
+
 class UserExist(BaseException):
     def __init__(self, username):
         message = 'User {} already exists'.format(username)
@@ -15,9 +20,9 @@ class UserNotExist(BaseException):
         message = 'User {} doesn\'t exist'.format(username)
         super().__init__(message, 400)
 
-class UserIsNotAdmin(BaseException):
+class UserIsNotRole(BaseException):
     def __init__(self, username):
-        message = 'User {} isn\'t admin'.format(username)
+        message = 'User {} doesn\'t have permissions'.format(username)
         super().__init__(message, 401)
 
 class WrongCredentials(BaseException):

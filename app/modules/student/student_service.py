@@ -1,13 +1,36 @@
 from app.models import User, Tutor, Student, Group, Subject, AssociationTGS, Checkpoint, CheckpointField, Progress
 from app.modules.user import UserService
+from app.utils import generate_password
 from app import db
 from app.exceptions import UserNotExist, AssociationNotExist
+import datetime
 
 user_service = UserService()
 
 class StudentService:
+    def _generate_group_id(self, group_number, admission_year):
+        today = datetime.datetime.today()
+        if today.year < admission_year:
+            raise Exception('Wrong admission year')
+        if today.month >= 9:
+            sub = today.year - admission_year + 1
+        else:
+            sub = today.year - admission_year
+        return int('73{}{}'.format(sub, group_number))
 
-    def create_student(self, data):
+    def add_base_info(self, student: dict):
+        admission_year, group_number = student['fullname'].split('-')[:2:] 
+        admission_year = int(admission_year)
+        password = generate_password() 
+        group_id = self._generate_group_id(group_number, admission_year)
+        student.update({
+            'password': password,
+            'admission_year': admission_year,
+            'group_id': group_id
+        })
+
+    def create(self, data):
+        self.add_base_info(data)
         user = user_service.create_user(data['username'], data['password'])
         group = Group.find_by_id(data['group_id'])
         if group is None:
@@ -20,7 +43,7 @@ class StudentService:
         student.account = user
         student.add_to_db()
         db.session.commit()
-        return student
+        return data
 
     def find_student_by_username(self, username):
         user = user_service.find_by_username(username)

@@ -30,25 +30,15 @@ class AdminService:
         results = []
         for student_info in students_list:
             fullname = student_info[1]
-            admission_year, group_number = fullname.split('-')[:2:] 
-            admission_year = int(admission_year)
             fio = student_info[0]
             login = student_info[2]
-            password = self._generate_password() 
-            group_id = self._generate_group_id(group_number, admission_year)
-            res = {
+            student = {
                 'fullname': fullname,
                 'username': login,
-                'password': password
-            }
-            student_db_data = {
-                **res,
                 'fio': fio,
-                'admission_year': admission_year,
-                'group_id': group_id
             }
-            student_service.create_student(student_db_data)
-            results.append(res)
+            student = student_service.create(student)
+            results.append(student)
         return results
 
     def create_tutors(self, tutors_list):
@@ -56,17 +46,12 @@ class AdminService:
         for tutor_info in tutors_list:
             fio = tutor_info[0]
             login = tutor_info[1]
-            password = self._generate_password() 
-            res = {
+            tutor = {
                 'username': login,
-                'password': password
-            }
-            tutor_db_data = {
-                **res,
                 'fio': fio
             }
-            tutor_service.create_tutor(tutor_db_data)
-            results.append(res)
+            tutor = tutor_service.create_tutor(tutor)
+            results.append(tutor)
         return results
 
     def create_subject(self, subject_name, checkpoints):
