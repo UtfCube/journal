@@ -13,8 +13,7 @@ api = Api(app)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 app.config.from_object(Config)
-
-#db = SQLAlchemy(app, session_options={ "autoflush": False })
+app.config['PROPAGATE_EXCEPTIONS'] = True
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
