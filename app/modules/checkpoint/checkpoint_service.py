@@ -85,3 +85,13 @@ class CheckpointService:
         for checkpoints_id in checkpoints_ids:
             subject.checkpoints.filter_by(id=checkpoints_id).delete()
         db.session.commit()
+
+    def get_all(self, subject_name):
+        subject = Subject.query.filter_by(name=subject_name).first()
+        if subject is None: 
+            raise SubjectNotExist(subject_name)
+        checkpoints = subject.checkpoints.all()
+        res = Checkpoint.json_list(checkpoints, ['id', 'subject_name'])
+        for i, checkpoint in enumerate(checkpoints):
+            res[i]['fields'] = [ field.json(['id', 'checkpoint_id']) for field in checkpoint.fields.all() ]
+        return res

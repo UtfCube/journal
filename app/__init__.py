@@ -26,8 +26,7 @@ def check_if_token_in_blacklist(decrypted_token):
 
 from app import views, utils, modules, models, parsers, exceptions
 
-api.add_resource(modules.TutorRegistration, '/api/register/tutor')
-api.add_resource(modules.StudentRegistration, '/api/register/student')
+api.add_resource(modules.UserRegistration, '/api/register')
 api.add_resource(modules.UserLogin, '/api/login')
 api.add_resource(modules.UserLogoutAccess, '/api/logout/access')
 api.add_resource(modules.UserLogoutRefresh, '/api/logout/refresh')

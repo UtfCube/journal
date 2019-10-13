@@ -8,9 +8,10 @@ checkpoint_service = CheckpointService()
 
 class Checkpoints(Resource):
     @auth_user
-    def get(self, current_user, subject, group_id):
+    @is_role(['admin', 'tutor'])
+    def get(self, current_user, subject):
         try:
-            checkpoints = tutor_service.get_checkpoints(current_user, subject, group_id)
+            checkpoints = checkpoint_service.get_all(subject)
             return checkpoints
         except BaseException as e:
             return e.to_json()

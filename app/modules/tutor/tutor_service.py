@@ -11,7 +11,7 @@ class TutorService:
         password = generate_password()
         tutor['password'] = password
 
-    def create_tutor(self, data):
+    def create(self, data):
         self.add_base_info(data)
         user = user_service.create_user(data['username'], data['password'])
         tutor = Tutor(fio=data['fio'])

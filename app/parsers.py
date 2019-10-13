@@ -4,16 +4,14 @@ CANNOT_BE_BLANK='This field cannot be blank'
 
 tutor_reg_parser = reqparse.RequestParser()
 tutor_reg_parser.add_argument('username', help=CANNOT_BE_BLANK, required=True)
-tutor_reg_parser.add_argument('password', help=CANNOT_BE_BLANK, required=True)
 tutor_reg_parser.add_argument('fio', help=CANNOT_BE_BLANK, required=True)
-tutor_reg_parser.add_argument('role', type='tutor', required=True)
+tutor_reg_parser.add_argument('role', help=CANNOT_BE_BLANK, required=True)
 
 student_reg_parser = reqparse.RequestParser()
 student_reg_parser.add_argument('username', help=CANNOT_BE_BLANK, required=True)
-student_reg_parser.add_argument('password', help=CANNOT_BE_BLANK, required=True)
 student_reg_parser.add_argument('fio', help=CANNOT_BE_BLANK, required=True)
 student_reg_parser.add_argument('fullname', help=CANNOT_BE_BLANK, required=True)
-student_reg_parser.add_argument('role', type='student', required=True)
+student_reg_parser.add_argument('role', help=CANNOT_BE_BLANK, required=True)
 
 user_login_parser = reqparse.RequestParser()
 user_login_parser.add_argument('username', help=CANNOT_BE_BLANK, required=True)

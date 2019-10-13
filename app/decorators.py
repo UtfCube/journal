@@ -44,7 +44,7 @@ def expect(validator: Union[RequestParser, List[RequestParser]]):
             else:
                 for v in validator:
                     try:
-                        data = validator.parse_args()
+                        data = v.parse_args()
                         return func(self, *args, data, **kwargs)
                     except:
                         continue
