@@ -9,5 +9,5 @@ class AssociationTGS(BaseModel):
     tutor_id = db.Column(db.Integer, db.ForeignKey('tutors.user_id'), nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=False)
     subject_name = db.Column(db.String(128), db.ForeignKey('subjects.name'), nullable=False)
-    #checkpoints = db.relationship('Checkpoint', lazy='dynamic',
-    #    backref=db.backref('tgs', lazy=True), cascade='all,delete-orphan') 
+    group_info = db.relationship('GroupInfo', lazy='dynamic',
+        backref=db.backref('tgs', lazy=True), cascade='all,delete-orphan') 

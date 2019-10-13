@@ -10,3 +10,5 @@ from .student import *
 from .checkpoint import *
 from .checkpoint_field import *
 from .progress import *
+from .group_info import *
+from .dates_info import *

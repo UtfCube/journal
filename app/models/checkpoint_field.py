@@ -9,5 +9,7 @@ class CheckpointField(BaseModel):
     checkpoint_id = db.Column(db.Integer, db.ForeignKey('checkpoints.id', ondelete='CASCADE'), nullable=False)
     is_hidden = db.Column(db.Boolean, default=False)
     type = db.Column(db.String(1), nullable=True)
+    dates_info = db.relationship('DatesInfo', lazy='dynamic',
+        backref=db.backref('checkpoint_field', lazy=True), passive_deletes=True)
     progress = db.relationship('Progress', lazy='dynamic',
         backref=db.backref('checkpoint_field', lazy=True), passive_deletes=True)
