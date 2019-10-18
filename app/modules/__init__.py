@@ -6,3 +6,5 @@ from .admin import *
 from .checkpoint import *
 from .registration import *
 from .progress import *
+from .subjects import *
+from .group import *
