@@ -5,3 +5,4 @@ from .student import *
 from .admin import *
 from .checkpoint import *
 from .registration import *
+from .progress import *

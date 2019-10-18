@@ -1,9 +1,14 @@
+from flask import make_response, jsonify
+
 class BaseException(Exception):
     def __init__(self, message, code):
         self.message = message
         self.code = code
     def to_json(self):
         return {'msg': self.message}, self.code
+    
+    def to_response(self):
+        return make_response(jsonify({'msg': self.message}), self.code)
 
 class DataNotValid(BaseException):
     def __init__(self):
