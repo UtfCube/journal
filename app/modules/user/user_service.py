@@ -1,3 +1,4 @@
+from app import db
 from app.models import User
 from app.exceptions import UserExist, UserNotExist, WrongCredentials
 
@@ -11,4 +12,9 @@ class UserService:
         user = User(username, password, role)
         user.add_to_db()
         return user
+    
+    def change_password(self, username, password):
+        user = self.find_by_username(username)
+        user.change_password(password)
+        db.session.commit()
 

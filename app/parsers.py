@@ -20,3 +20,6 @@ user_login_parser.add_argument('password', help=CANNOT_BE_BLANK, required=True)
 association_parser = reqparse.RequestParser()
 association_parser.add_argument('subject_name', help=CANNOT_BE_BLANK, required=True)
 association_parser.add_argument('group_id', type=int, required=True)
+
+change_password_parser = reqparse.RequestParser()
+change_password_parser.add_argument('password', help=CANNOT_BE_BLANK, required=True)

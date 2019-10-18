@@ -1,5 +1,4 @@
 from flask_restful import Resource
-from app.exceptions import BaseException, InternalError
 from app.decorators import auth_user, is_role
 from flask import request
 from .checkpoint_service import CheckpointService
@@ -10,38 +9,20 @@ class Checkpoints(Resource):
     @auth_user
     @is_role(['admin', 'tutor'])
     def get(self, current_user, subject):
-        try:
-            checkpoints = checkpoint_service.get_all(subject)
-            return checkpoints
-        except BaseException as e:
-            return e.to_json()
-        except Exception as e:
-            print(e)
-            return InternalError().to_json()
+        checkpoints = checkpoint_service.get_all(subject)
+        return checkpoints
 
     @auth_user
     @is_role(['admin', 'tutor'])
     def post(self, current_user, subject):
         #TODO допилить парсер
         data = request.get_json()
-        try:
-            return checkpoint_service.add(subject, data)
-        except BaseException as e:
-            return e.to_json()
-        except Exception as e:
-            print(e)
-            return InternalError().to_json()
+        return checkpoint_service.add(subject, data)
 
     @auth_user
     @is_role(['admin', 'tutor'])
     def delete(self, current_user, subject):
         #TODO допилить парсер
         data = request.get_json()
-        try:
-            checkpoint_service.delete(subject, data)
-            return {'msg': 'Checkpoints has been succesfully deleted'}
-        except BaseException as e:
-            return e.to_json()
-        except Exception as e:
-            print(e)
-            return InternalError().to_json()
+        checkpoint_service.delete(subject, data)
+        return {'msg': 'Checkpoints has been succesfully deleted'}

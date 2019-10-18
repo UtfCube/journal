@@ -1,12 +1,9 @@
 from functools import wraps
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.modules.user import UserService
+from app.models import User
 from app.exceptions import UserIsNotRole, DataNotValid
 from typing import Union, List
 from flask_restful.reqparse import RequestParser
-
-
-user_service = UserService()
 
 def auth_user(func):
     @wraps(func)
@@ -20,7 +17,7 @@ def is_role(roles: Union[str, List[str]]):
     def decorator(func):
         @wraps(func)
         def wrapper(self, current_user, *args, **kwargs):
-            user = user_service.find_by_username(current_user)
+            user = User.find_by_username(current_user)
             if isinstance(roles, str):   
                 if user.role == roles:
                     return func(self, current_user, *args, **kwargs)
