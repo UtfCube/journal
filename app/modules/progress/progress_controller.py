@@ -12,3 +12,8 @@ class ProgressController(Resource):
         data = request.get_json()
         progress_service.add(current_user, subject, group_id, data)
         return {'msg': 'Result has been successfully added'}
+    
+    @auth_user
+    @is_role(['tutor', 'student'])
+    def get(self, current_user, subject, group_id):
+        progress_service.get(current_user, subject, group_id)
