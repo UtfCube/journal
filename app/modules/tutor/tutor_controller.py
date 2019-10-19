@@ -8,20 +8,6 @@ from flask import request
 tutor_service = TutorService()
 auth_service = AuthService()
 
-class TutorHome(Resource):
-    @auth_user
-    @expect(association_parser)
-    def post(self, current_user, data):
-        tutor_service.add_association(current_user, **data)
-        return {
-            'msg': 'Association successfully created'
-        }
-
-    @auth_user
-    def get(self, current_user):
-        associations = tutor_service.get_associations(current_user)
-        return associations
-
 class GroupSubject(Resource):
     @auth_user
     @is_role('tutor')
@@ -31,6 +17,12 @@ class GroupSubject(Resource):
         return {
             'msg': 'Association successfully created'
         }
+    
+    @auth_user
+    @is_role('tutor')
+    def get(self, current_user):
+        associations = tutor_service.get_associations(current_user)
+        return associations
 
 class Dates(Resource):
     @auth_user

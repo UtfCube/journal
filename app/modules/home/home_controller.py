@@ -2,20 +2,15 @@ from flask_restful import Resource
 from app.decorators import auth_user, is_role
 from flask import request
 from app import app
-from .admin_service import AdminService
-import os
+from app.modules.admin import AdminService
 import csv
-from werkzeug.utils import secure_filename
+from .home_service import HomeService
+from app.utils import save_file
 
 admin_service = AdminService()
+home_service = HomeService()
 
-def save_file(folder, file):
-    filename = secure_filename(file.filename)
-    path = os.path.join(folder, filename)
-    file.save(path)
-    return path
-
-class AdminHome(Resource):
+class HomeController(Resource):
     @auth_user
     @is_role('admin')
     def post(self, current_user):
@@ -45,7 +40,9 @@ class AdminHome(Resource):
                 checkpoints_list = reader[1::]
                 res = admin_service.create_subject(subject_name, checkpoints_list)
                 results[subject] = res
-        return {
-            'msg': 'success', 
-            'res': results
-        }
+        return results
+    
+    @auth_user
+    @is_role(['admin', 'tutor', 'student'])
+    def get(self, current_user):
+        return home_service.get(current_user)

@@ -51,6 +51,16 @@ class StudentService:
             raise UserNotExist(username)
         return user.student
 
+    def get_all(self):
+        res = db.session.query(Student.fio, Student.fullname, Student.group_id, Student.admission_year, User.username).join(User).all()
+        res = [{"username": x[4], "fullname": x[1], "fio": x[0], "group_id": x[2], "admission_year": x[3]} for x in res]
+        return res
+
+    def get_home_info(self, username):
+        student = self.find_student_by_username(username)
+        subjects = student.group.tgs.with_entities(AssociationTGS.subject_name).all()
+        return [s[0] for s in subjects]
+
     def get_subjects(self, username):
         student = self.find_student_by_username(username)
         group = student.group
@@ -65,21 +75,4 @@ class StudentService:
             tutors[index]["subjects"] = tmp[key]
             index += 1
         return tutors
-
-    def get_subject_progress(self, username, subject_name):
-        student = self.find_student_by_username(username)
-        tgs = AssociationTGS.query.filter_by(subject_name=subject_name, group_id=student.group_id).first()
-        if tgs is None:
-            raise AssociationNotExist(subject_name=subject_name)
-        checkpoints = tgs.checkpoints.all()
-        progress = Checkpoint.json_list(checkpoints, ['id', 'tgs_id'])
-        for i, checkpoint in enumerate(checkpoints):
-            cp_progress = (db.session.query(CheckpointField.name,
-                                Progress.passed)
-                            .join(Progress)
-                            .filter(CheckpointField.checkpoint_id == checkpoint.id)
-                            .filter(Progress.student_id == student.user_id)
-                            ).all()
-            progress[i]["progress"] = dict(cp_progress)
-        return progress
             

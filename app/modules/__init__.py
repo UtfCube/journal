@@ -8,3 +8,4 @@ from .registration import *
 from .progress import *
 from .subjects import *
 from .group import *
+from .home import *

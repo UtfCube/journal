@@ -40,3 +40,9 @@ class AdminService:
         subject_name = subject_name[0]
         checkpoints = checkpoint_service.from_csv(checkpoints)
         return checkpoint_service.add(subject_name, checkpoints)
+
+    def get_home_info(self):
+        return {
+            'tutors': tutor_service.get_all(),
+            'students': student_service.get_all()
+        }
