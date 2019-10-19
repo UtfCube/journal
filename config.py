@@ -1,8 +1,8 @@
 import os
 
 POSTGRES = {
-    "user": "postgres",
-    "pw" : "postgres",
+    "user": "mac",
+    "pw" : "5235",
     "db" : "journal",
     "host" : "localhost",
     "port" : "5432"

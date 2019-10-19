@@ -2,10 +2,11 @@ from app import db
 from app.modules.student import StudentService
 from app.modules.tutor import TutorService
 from app.modules.user import UserService
-from app.models import Progress, AssociationTGS, Student, Checkpoint, CheckpointField
+from app.models import Progress, AssociationTGS, Student, Checkpoint, CheckpointField, User
 from app.exceptions import SubjectNotExist, CheckpointNotExist, CheckpointFieldNotExist, AssociationNotExist
 from operator import itemgetter
 from itertools import groupby
+from sqlalchemy import or_
 
 user_service = UserService()
 student_service = StudentService()
@@ -43,33 +44,22 @@ class ProgressService:
             tgs = AssociationTGS.query.filter_by(subject_name=subject_name, group_id=group_id).first()
             if tgs is None:
                 raise AssociationNotExist(subject_name=subject_name, group_id=group_id)
-        group = tgs.group
-        students = group.students.all()
-        progress = Student.json_list(students)
         subject = tgs.subject
         if subject is None: 
             raise SubjectNotExist(subject_name)
-        #for 
-        res: list = (db.session.query(Checkpoint.name, CheckpointField.name, Progress.result, Student)
-            .join(CheckpointField)
-            .join(Progress)
-            .join(Student)
-            .filter(Checkpoint.subject_name==subject_name)
+        res: list = (db.session.query(Student, User.username, Progress.result, CheckpointField.name, Checkpoint.name)
+            .join(User)
+            .outerjoin(Progress)
+            .outerjoin(CheckpointField)
+            .outerjoin(Checkpoint)
+            .filter(or_(Checkpoint.subject_name==subject_name, Checkpoint.subject_name == None))
             .filter(Student.group_id==group_id)).all()
-        #print(res)
-        #res.sort(key=lambda x: x[3].user_id)
-        res = {k: [(x,y,z) for x,y,z,d in g] for k,g in groupby(res, key=itemgetter(3))}
-        #print(res)
+        res = {k: [(d,z,y) for a,x,y,z,d in g] for k,g in groupby(res, key=itemgetter(0, 1))}
+        results = []
         for s in res:
             t = res[s]
             t.sort(key=itemgetter(0))
-            res[s] = {k: [(y,z) for x,y,z in g] for k,g in groupby(t, key=itemgetter(0))}
-        print(res)
-        #res.sort(key=itemgetter(0, 3))
-        #
-        #print({str(k):[(y,z) for x,y,z,d in v] for k,v in groupby(res, key=itemgetter(0, 3))})
-        #checkpoints = subject.checkpoints.all()
-        #for checkpoint in checkpoints:
-
-        #for i, student in enumerate(students):
-        #    pass
+            results.append({"username": s[1], 
+                **Student.json(s[0], ['user_id', 'admission_year', 'group_id']), 
+                "progress": {k: {y:z for x,y,z in g} for k,g in groupby(t, key=itemgetter(0)) if k is not None}})
+        return results

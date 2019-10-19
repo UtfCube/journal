@@ -16,4 +16,5 @@ class ProgressController(Resource):
     @auth_user
     @is_role(['tutor', 'student'])
     def get(self, current_user, subject, group_id):
-        progress_service.get(current_user, subject, group_id)
+        progress = progress_service.get(current_user, subject, group_id)
+        return progress
