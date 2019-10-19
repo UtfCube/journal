@@ -1,39 +1,27 @@
 import os
+from dotenv import load_dotenv
 
-POSTGRES = {
-    "user": "mac",
-    "pw" : "5235",
-    "db" : "journal",
-    "host" : "localhost",
-    "port" : "5432"
-}
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
-    ADMIN_FOLDER = './configs'
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-shall-not-pass'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'postgresql://{user}:{pw}@{host}:{port}/{db}'.format(**POSTGRES)
+    DB_ENGINE = os.environ.get('DB_ENGINE')
+    DB_USER = os.environ.get('DB_USER')
+    DB_PASSWORD = os.environ.get('DB_PASSWORD')
+    DB_NAME = os.environ.get('DB_NAME')
+    DB_HOST = os.environ.get('DB_HOST')
+    DB_PORT = os.environ.get('DB_PORT')
+    SQLALCHEMY_DATABASE_URI = '{}://{}:{}@{}:{}/{}'.format(
+        DB_ENGINE,
+        DB_USER,
+        DB_PASSWORD,
+        DB_HOST,
+        DB_PORT,
+        DB_NAME
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = SECRET_KEY
+    ADMIN_FOLDER = os.environ.get('ADMIN_FOLDER')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
-
-
-
-"""
-class ProductionConfig(Config):
-    DEBUG = False
-
-
-class StagingConfig(Config):
-    DEVELOPMENT = True
-    DEBUG = True
-
-
-class DevelopmentConfig(Config):
-    DEVELOPMENT = True
-    DEBUG = True
-
-
-class TestingConfig(Config):
-    TESTING = True
-"""
