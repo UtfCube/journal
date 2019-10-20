@@ -4,13 +4,12 @@
             <div class="hero-body">
                 <div class="container has-text-centered">
                     <h2 class="title">Здравствуйте, {{ username }}</h2>
-                    <p class="subtitle error-msg">{{ error }}</p>
                 </div>
             </div>
         </section>
         <section>
             <b-table 
-                :data="info"
+                :data="subjects"
                 :selected.sync="selected" 
                 :hoverable="true" 
                 :striped="true"
@@ -20,32 +19,9 @@
                 detailed
                 >
                 <template slot-scope="props">
-                    <b-table-column label="Имя преподавателя">
-                        {{ props.row.name }}
-                    </b-table-column>
-
                     <b-table-column label="Предмет">
-                       {{ props.row.subject }}
+                       {{ props.row }}
                     </b-table-column>
-                </template>
-                <template slot="detail" slot-scope="details">
-                    <b-table :data="checkpoints"
-                        :hoverable="true" 
-                        :striped="true">
-                        <template slot-scope="props">
-                            <b-table-column label="Контрольная точка">
-                                {{ props.row.name }}
-                            </b-table-column>
-
-                            <b-table-column label="Оценка">
-                                {{ props.row.mark }}
-                            </b-table-column>
-
-                            <b-table-column label="Срок сдачи">
-                                {{ props.row.date }}
-                            </b-table-column>
-                        </template>
-                    </b-table>
                 </template>
             </b-table>
         </section>
@@ -54,69 +30,25 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { DialogError } from '@/utils';
 
 @Component
 export default class StudentHome extends Vue {
-    private error: string = '';
-    private info: any = [
-        {
-            name: "t t t",
-            subject: "математика"
-        },
-        {
-            name: "t t t",
-            subject: "алгебра"
-        }
-    ]
-
-    private checkpoints: any = [
-        {
-            name: "ЛР10",
-            mark: "",
-            date: "дд.мм.гггг"
-        },
-        {
-            name: "ЛР1",
-            mark: "",
-            date: "дд.мм.гггг"
-        },
-        {
-            name: "ЛР2",
-            mark: 5,
-            date: "2018-01-19"
-        },
-        {
-            name: "ЛР3",
-            mark: "",
-            date: "дд.мм.гггг"
-        },
-        {
-            name: "ЛР4",
-            mark: "",
-            date: "дд.мм.гггг"
-        },
-        {
-            name: "ЛР5",
-            mark: "",
-            date: "дд.мм.гггг"
-        },
-        {
-            name: "ЛР6",
-            mark: "",
-            date: "дд.мм.гггг"
-        }
-    ]
+    private selected: object = {};
 
     get username() {
         return this.$store.state.userData.username;
     }
 
-    /*get info() {
+    get subjects() {
         return this.$store.state.userData.info;
-    }*/
+    }
 
-    beforeMount () {
-        const error = this.$store.dispatch('getStudentHome');
+    async beforeCreate () {
+        const error = await this.$store.dispatch('getStudentHome');
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 
     click(subject: any) {

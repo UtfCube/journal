@@ -2,10 +2,7 @@ import axios from 'axios'
 
 export default class Api {
     public static getTutorHome(jwt: string) {
-        return axios.get('/tutor/home', { headers: { Authorization: `Bearer ${jwt}`}})
-    }
-    public static getAssociations(jwt: string) {
-        return axios.get('/associations', { headers: { Authorization: `Bearer ${jwt}`}})
+        return axios.get('/home', { headers: { Authorization: `Bearer ${jwt}`}})
     }
     public static addAssociation(jwt: string, info: object) {
         return axios.post('/associations', info, { headers: { Authorization: `Bearer ${jwt}`}})
@@ -16,11 +13,14 @@ export default class Api {
     public static getSubjects(jwt: string) {
         return axios.get('/subjects', { headers: { Authorization: `Bearer ${jwt}`}})
     }
-    public static getStudentHome(jwt: string) {
-        return axios.get('/student/home', { headers: { Authorization: `Bearer ${jwt}`}})
+    public static AdminUpload(jwt: string, formData: any) {
+        return axios.post('/home', formData, { headers: { 
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${jwt}`
+        }});
     }
-    public static addNewSubject(jwt: string, info: object) {
-        return axios.post('/tutor/home', info, { headers: { Authorization: `Bearer ${jwt}`}})
+    public static getStudentHome(jwt: string) {
+        return axios.get('/home', { headers: { Authorization: `Bearer ${jwt}`}})
     }
     public static authenticate (userData: any) {  
         return axios.post('/login', userData)

@@ -47,7 +47,5 @@ api.add_resource(modules.ProgressController, '/api/<subject>/<group_id>/progress
 api.add_resource(modules.SubjectController, '/api/subjects')
 api.add_resource(modules.GroupController, '/api/groups')
 api.add_resource(modules.HomeController, '/api/home')
-#api.add_resource(resources.GroupCpProgress, '/api/tutor/<subject>/<group_id>/<cp_name>')
 api.add_resource(modules.Checkpoints, '/api/<subject>/checkpoints')
 api.add_resource(modules.Dates, '/api/<subject>/<group_id>/<cp_name>/dates')
-#api.add_resource(resources.SubjectProgress, '/api/student/<subject>')

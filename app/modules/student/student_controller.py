@@ -10,5 +10,5 @@ student_service = StudentService()
 class StudentHome(Resource):
     @auth_user
     def get(self, current_user):
-        subjects = student_service.get_subjects(current_user)
+        subjects = student_service.get_home_info(current_user)
         return subjects

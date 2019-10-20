@@ -70,22 +70,12 @@ const actions = {
     },
     async getTutorHome(context: any) {
       try {
-        //const response = await Api.getTutorHome(context.state.access_token);
-        let tutorInfo = {
-          associations: "",
-          groups: "",
-          subjects: ""
-        }
-        let response = await Api.getAssociations(context.state.access_token)
+        let response = await Api.getTutorHome(context.state.access_token)
         context.commit('setAssociations', { associations: response.data });
         response = await Api.getGroups(context.state.access_token)
         context.commit('setGroups', { groups: response.data });
         response = await Api.getSubjects(context.state.access_token)
         context.commit('setSubjects', { subjects: response.data });
-        //tutorInfo.groups = response.data
-        //response = await Api.getSubjects(context.state.access_token)
-        //tutorInfo.subjects = response.data
-        
         return null;
       }
       catch (error) {
@@ -125,6 +115,15 @@ const actions = {
       try {
         await Api.addAssociation(context.state.access_token, payload);
         context.commit('updateTutorInfo', { newInfo: payload });
+        return null;
+      } 
+      catch (error) {
+        return error.response.data.msg;
+      }
+    },
+    async AdminUpload (context: any, payload: any) {
+      try {
+        await Api.AdminUpload(context.state.access_token, payload);
         return null;
       } 
       catch (error) {
