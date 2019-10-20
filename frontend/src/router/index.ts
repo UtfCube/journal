@@ -21,16 +21,6 @@ const routerOptions = [
     name: 'home', 
     component: 'Home',
     beforeEnter: beforeEnter
-  }, { 
-    path: '/student/home',
-    name: 'studentHome', 
-    component: 'StudentHome',
-    beforeEnter: beforeEnter
-  }, { 
-    path: '/tutor/home',
-    name: 'tutorHome', 
-    component: 'TutorHome',
-    beforeEnter: beforeEnter,
   }, {
     path: '/register',
     name: 'register',
