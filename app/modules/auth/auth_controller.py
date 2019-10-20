@@ -10,11 +10,11 @@ class UserLogin(Resource):
     @expect(user_login_parser)
     def post(self, data):
         data = user_login_parser.parse_args()
-        auth_service.authenticate(data['username'], data['password'])
+        user = auth_service.authenticate(data['username'], data['password'])
         access_token = auth_service.create_access_token(identity=data['username'])
         refresh_token = auth_service.create_refresh_token(identity=data['username'])
         return {
-            'msg': 'Logged in as {}'.format(data['username']),
+            'role': user.role,
             'access_token': access_token,
             'refresh_token': refresh_token
         }

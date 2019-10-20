@@ -9,20 +9,26 @@
         </section>
         <section class="section">
             <div class="container">
-                <div class="field">
-                    <label class="label is-large" for="subject">Предмет:</label>
-                    <div class="control">
-                        <input type="text" class="input is-large" id="subject" v-model="form.subject">
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label is-large" for="group">Группа:</label>
-                    <div class="control">
-                        <input type="text" class="input is-large" id="group" v-model="form.group">
-                    </div>
-                </div>
+                <b-field label="Предмет:">
+                    <b-select v-model="subject" placeholder="Выберете предмет">
+                        <option
+                            v-for="(subject, index) in subjects"
+                            :key="index">
+                            {{ subject.name }}
+                        </option>
+                    </b-select>
+                </b-field>
+                <b-field label="Группа:">
+                    <b-select v-model="group" placeholder="Выберете группу">
+                        <option
+                            v-for="(group, index) in groups"
+                            :key="index">
+                            {{ group.id }}
+                        </option>
+                    </b-select>
+                </b-field>
                 <div class="control">
-                    <a class="button is-large is-primary" @click="add">Добавить</a>
+                    <a class="button is-primary" @click="add">Добавить</a>
                 </div>
             </div>
         </section>
@@ -54,10 +60,11 @@ import { DialogError } from '@/utils';
 
 @Component
 export default class TutorHome extends Vue {
-    private form: any = {};
+    private subject: string = "";
+    private group: number = 0;
     private selected: object = {};
 
-    async beforeMount () {
+    async beforeCreate () {
         const error = await this.$store.dispatch('getTutorHome');
         if (error) {
             this.$dialog.alert({ ...DialogError, message: error });
@@ -72,8 +79,16 @@ export default class TutorHome extends Vue {
         return this.$store.state.userData.info;
     }
 
+    get groups () {
+        return this.$store.state.groups
+    }
+
+    get subjects () {
+        return this.$store.state.subjects
+    }
+
     async add () {
-        const error = await this.$store.dispatch('addNewSubject', { group_id: this.form.group, subject_name: this.form.subject });
+        const error = await this.$store.dispatch('addAssociation', { group_id: this.group, subject_name: this.subject });
         if (error) {
             this.$dialog.alert({ ...DialogError, message: error });
         }

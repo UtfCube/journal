@@ -12,6 +12,7 @@ class AuthService:
             raise UserNotExist(username)
         if not user.check_password(password):
             raise WrongCredentials()
+        return user
 
     def revoke_token(self, jti):
         revoked_token = RevokedTokenModel(jti=jti)

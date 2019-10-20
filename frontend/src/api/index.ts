@@ -4,6 +4,18 @@ export default class Api {
     public static getTutorHome(jwt: string) {
         return axios.get('/tutor/home', { headers: { Authorization: `Bearer ${jwt}`}})
     }
+    public static getAssociations(jwt: string) {
+        return axios.get('/associations', { headers: { Authorization: `Bearer ${jwt}`}})
+    }
+    public static addAssociation(jwt: string, info: object) {
+        return axios.post('/associations', info, { headers: { Authorization: `Bearer ${jwt}`}})
+    }
+    public static getGroups(jwt: string) {
+        return axios.get('/groups', { headers: { Authorization: `Bearer ${jwt}`}})
+    }
+    public static getSubjects(jwt: string) {
+        return axios.get('/subjects', { headers: { Authorization: `Bearer ${jwt}`}})
+    }
     public static getStudentHome(jwt: string) {
         return axios.get('/student/home', { headers: { Authorization: `Bearer ${jwt}`}})
     }

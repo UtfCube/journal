@@ -3,12 +3,15 @@ import Vuex from 'vuex'
 
 // imports of AJAX functions will go here
 import Api from '@/api'  
-import { isValidJwt, EventBus } from '@/utils'
+import { isValidJwt } from '@/utils'
 
 Vue.use(Vuex)
 
 const state = {  
   // single source of data
+  associations: [],
+  groups: [],
+  subjects: [],
   access_token: "",
   userData: {},
   gradesTable: [],
@@ -25,9 +28,9 @@ const actions = {
     async login (context: any, userData: any) {
       try {
         const response = await Api.authenticate(userData);
-        const { access_token } = response.data
+        const { access_token, role } = response.data
         context.commit('setJwtToken', { jwt: access_token })
-        context.commit('setUserData', { userData: userData})
+        context.commit('setUserData', { userData: {...userData, role}})
         return null
       }
       catch (error) {
@@ -67,8 +70,22 @@ const actions = {
     },
     async getTutorHome(context: any) {
       try {
-        const response = await Api.getTutorHome(context.state.access_token);
-        context.commit('setTutorInfo', { tutorInfo: response.data });
+        //const response = await Api.getTutorHome(context.state.access_token);
+        let tutorInfo = {
+          associations: "",
+          groups: "",
+          subjects: ""
+        }
+        let response = await Api.getAssociations(context.state.access_token)
+        context.commit('setAssociations', { associations: response.data });
+        response = await Api.getGroups(context.state.access_token)
+        context.commit('setGroups', { groups: response.data });
+        response = await Api.getSubjects(context.state.access_token)
+        context.commit('setSubjects', { subjects: response.data });
+        //tutorInfo.groups = response.data
+        //response = await Api.getSubjects(context.state.access_token)
+        //tutorInfo.subjects = response.data
+        
         return null;
       }
       catch (error) {
@@ -104,9 +121,9 @@ const actions = {
         return error.response.data.msg;
       }
     },
-    async addNewSubject (context: any, payload: any) {
+    async addAssociation (context: any, payload: any) {
       try {
-        await Api.addNewSubject(context.state.access_token, payload);
+        await Api.addAssociation(context.state.access_token, payload);
         context.commit('updateTutorInfo', { newInfo: payload });
         return null;
       } 
@@ -154,6 +171,19 @@ const mutations = {
     setTutorInfo (state: any, payload: any) {
       console.log('setTutorInfo payload = ', payload);
       Vue.set(state.userData, 'info', payload.tutorInfo)
+    },
+    setAssociations(state: any, payload: any) {
+      console.log('setAssociations payload = ', payload)
+      //state.associations = payload.associations
+      Vue.set(state.userData, 'info', payload.associations)
+    },
+    setGroups (state: any, payload: any) {
+      console.log('setGroups payload = ', payload)
+      state.groups = payload.groups
+    },
+    setSubjects (state: any, payload: any) {
+      console.log('setSubjects payload = ', payload)
+      state.subjects = payload.subjects
     },
     updateProgress(state: any, payload: any) {
       console.log("update progress", payload)
