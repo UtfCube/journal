@@ -33,9 +33,9 @@ const routerOptions = [
     beforeEnter: beforeEnter
   }, {
     path: '/tutor/:subject_name/:group_id',
-    name: 'GroupSubjectInfo',
+    name: 'GroupSubject',
     props: true,
-    component: 'GroupSubjectInfo',
+    component: 'GroupSubject',
     beforeEnter: beforeEnter
   }, {
     path: '/logout',

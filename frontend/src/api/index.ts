@@ -29,7 +29,7 @@ export default class Api {
         return axios.post(`/register/${type}`, userData)
     }
     public static getCheckpoints(jwt: string, params: any) {
-        return axios.get(`/tutor/${params.subject_name}/${params.group_id}/checkpoints`, { headers: { Authorization: `Bearer ${jwt}`}})
+        return axios.get(`/${params.subject_name}/checkpoints`, { headers: { Authorization: `Bearer ${jwt}`}})
     }
     public static addCheckpoints(jwt: string, payload: any) {
         return axios.post(`/tutor/${payload.subject_name}/${payload.group_id}/checkpoints`, 

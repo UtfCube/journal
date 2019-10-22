@@ -95,7 +95,8 @@ export default class TutorHome extends Vue {
     }
 
     click(row: any) {
-        this.$router.push({name: 'GroupSubjectInfo', params: row });
+        console.log(row)
+        this.$router.push({name: 'GroupSubject', params: row });
     }
 }
 </script>

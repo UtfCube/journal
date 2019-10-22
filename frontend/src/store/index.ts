@@ -85,7 +85,7 @@ const actions = {
     async getCheckpoints(context: any, payload: any) {
       try {
         const response = await Api.getCheckpoints(context.state.access_token, payload);
-        context.commit('setCurrentCheckpoints', response.data);
+        context.commit('setCurrentCheckpoints', {checkpoints: response.data});
         return null;
       }
       catch (error) {
