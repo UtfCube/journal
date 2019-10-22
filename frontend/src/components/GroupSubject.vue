@@ -9,8 +9,9 @@
             <th v-for="(checkpoint, i) in checkpoints"
               :key="i" :colspan="checkpoint.fields.length">
               {{ checkpoint.name }}
-
-              <CheckpointInfo v-for="(date, j) in dates[checkpoint.name]" :key="j" v-model="date" property="date" btype="date" size="is-small"/>  
+              <b-field v-for="(date, j) in dates[checkpoint.name]" :key="j" :label="date.name" label-position="on-border">
+                <CheckpointInfo  :value="dates[checkpoint.name][j]" @input="save(checkpoint.name, $event)" property="date" btype="date" size="is-small"/>  
+              </b-field>
             </th>
           </tr>
           <tr>
@@ -26,7 +27,6 @@
           </tr>
         </thead>
       </table>
-    
     <!--<b-table :data="checkpoints" :columns="checkpoints">-->
       
       <!--<template slot-scope="props" slot="header">
@@ -100,6 +100,14 @@ export default class GroupSubject extends Vue {
         this.newDates[checkpoint.name] = checkpoint.dates
       }
       return this.newDates
+    }
+
+    async save(cp_name: string, info: any) {
+      this.newDates = {...this.newDates, [cp_name]: info}
+      const error = await this.$store.dispatch('addDates', { ...this.$route.params, dates: {[cp_name]: [info]}});
+      if (error) {
+          this.$dialog.alert({ ...DialogError, message: error });
+      }
     }
 }
 </script>

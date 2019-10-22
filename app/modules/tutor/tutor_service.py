@@ -66,7 +66,7 @@ class TutorService:
         tutor.tgs.append(association)
         db.session.commit()
 
-    def add_dates(self, username, subject_name, group_id, cp_name, dates):
+    def add_dates(self, username, subject_name, group_id, dates):
         tutor = self.find_tutor_by_username(username)
         tgs = self.find_tgs(tutor, subject_name, group_id)
         group_info = tgs.group_info.first()
@@ -74,14 +74,15 @@ class TutorService:
             group_info = GroupInfo()
             group_info.tgs = tgs
             tgs.group_info.append(group_info)
-        for date in dates:
-            field = checkpoint_service.find_field_by_name(subject_name, cp_name, date['name'])
-            date_info = group_info.dates.filter_by(group_info_id=group_info.id, date_field_id=field.id).first()
-            if date_info is None:
-                date_info = DatesInfo()
-                date_info.group_info = group_info
-                date_info.checkpoint_field = field
-                field.dates_info.append(date_info)
-                group_info.dates.append(date_info)
-            date_info.date = date['date']
+        for cp_name in dates:
+            for date in dates[cp_name]:
+                field = checkpoint_service.find_field_by_name(subject_name, cp_name, date['name'])
+                date_info = group_info.dates.filter_by(group_info_id=group_info.id, date_field_id=field.id).first()
+                if date_info is None:
+                    date_info = DatesInfo()
+                    date_info.group_info = group_info
+                    date_info.checkpoint_field = field
+                    field.dates_info.append(date_info)
+                    group_info.dates.append(date_info)
+                date_info.date = date['date']
         db.session.commit()

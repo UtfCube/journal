@@ -95,8 +95,15 @@ class CheckpointService:
         checkpoints = subject.checkpoints.all()
         res = Checkpoint.json_list(checkpoints, ['id', 'subject_name'])
         for i, checkpoint in enumerate(checkpoints):
-            res[i]['fields'] = [ field.json(['id', 'checkpoint_id']) for field in checkpoint.fields.all() if field.name not in dates_names]
-            res[i]['dates'] = [ field.json(['id', 'checkpoint_id']) for field in checkpoint.fields.all() if field.name in dates_names]
+            fields = checkpoint.fields.all()
+            res[i]['fields'] = [ field.json(['id', 'checkpoint_id']) for field in fields if field.name not in dates_names]
+            res[i]['dates'] = [ field.json(['id', 'checkpoint_id']) for field in fields if field.name in dates_names]
+            for field in fields:
+                date_info = field.dates_info.first()
+                if date_info is not None:
+                    for json_date in res[i]['dates']:
+                        if json_date['name'] == field.name:
+                            json_date['date'] = date_info.date
         return res
     
     def find_field_by_name(self, subject_name, checkpoint_name, field_name):

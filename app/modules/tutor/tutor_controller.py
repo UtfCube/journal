@@ -27,10 +27,10 @@ class GroupSubject(Resource):
 class Dates(Resource):
     @auth_user
     @is_role('tutor')
-    def post(self, current_user, subject, group_id, cp_name):
+    def post(self, current_user, subject, group_id):
         #TODO допилить парсер
         data = request.get_json()
-        tutor_service.add_dates(current_user, subject, group_id, cp_name, data)
+        tutor_service.add_dates(current_user, subject, group_id, data)
         return {
             'msg': 'Dates successfully created/updated'
         }

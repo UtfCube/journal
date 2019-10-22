@@ -22,17 +22,17 @@ export default class CheckpointInfo extends Vue {
   @Prop({
     type: String,
   })
-  private property!: string;
+  private property: string;
   
   @Prop({
     type: String,
   })
-  private btype!: string;
+  private btype: string;
 
   @Prop({
     type: String,
   })
-  private size!: string;
+  private size: string;
 
   private localDate: string = '';
 

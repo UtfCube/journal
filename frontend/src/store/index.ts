@@ -121,6 +121,14 @@ const actions = {
         return error.response.data.msg;
       }
     },
+    async addDates (context: any, payload: any) {
+      try {
+        await Api.addDates(context.state.access_token, payload);
+        context.commit('updateDates', { newDates: payload.dates });
+      } catch (error) {
+        return error.response.data.msg;
+      }
+    },
     async AdminUpload (context: any, payload: any) {
       try {
         await Api.AdminUpload(context.state.access_token, payload);
@@ -197,7 +205,18 @@ const mutations = {
         }
       }
     },
-
+    updateDates(state:any, payload: any) {
+      console.log('updateDates payload = ', payload);
+      for (let checkpoint in payload.newDates) {
+        let cp = state.currentCheckpoints.find((x: any) => x.name == checkpoint)
+        let new_dates = [...cp.dates]
+        for (let date_info of payload.newDates[checkpoint]) {
+          let i = new_dates.findIndex((x: any) => x.name == date_info.name)
+          new_dates[i] = date_info 
+        }
+        Vue.set(cp, 'dates', new_dates)
+      }
+    },
     updateTutorInfo (state: any, payload: any) {
       Vue.set(state.userData, 'info', [...state.userData.info, payload.newInfo])
     },

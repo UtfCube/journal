@@ -7,6 +7,9 @@ export default class Api {
     public static addAssociation(jwt: string, info: object) {
         return axios.post('/associations', info, { headers: { Authorization: `Bearer ${jwt}`}})
     }
+    public static addDates(jwt: string, payload: any) {
+        return axios.post(`/${payload.subject_name}/${payload.group_id}/dates`, payload.dates, { headers: { Authorization: `Bearer ${jwt}`}})
+    }
     public static getGroups(jwt: string) {
         return axios.get('/groups', { headers: { Authorization: `Bearer ${jwt}`}})
     }
