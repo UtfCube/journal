@@ -47,21 +47,4 @@ $link-focus-border: $primary;
 // Import Bulma and Buefy styles
 @import "~bulma";
 @import "~buefy/src/scss/buefy";
-
-.b-table {
-  .table {
-    td.vertical-text {
-      transform: rotate(-90deg);
-      transform-origin: right, top;
-      -ms-transform: rotate(-90deg);
-      -ms-transform-origin:right, top;
-      -webkit-transform: rotate(-90deg);
-      -webkit-transform-origin:right, top;
-      position: absolute; 
-    }
-  }
-}
 </style>
-
-
-

@@ -1,5 +1,9 @@
 export function isValidJwt (jwt: string) {
-  return !!jwt;
+  return !!jwt
+}
+
+export function getAccessToken() {
+  return localStorage.getItem('access_token') as string;
 }
 
 export const DialogError = {

@@ -3,7 +3,7 @@ import Vuex from 'vuex'
 
 // imports of AJAX functions will go here
 import Api from '@/api'  
-import { isValidJwt } from '@/utils'
+import { isValidJwt, getAccessToken } from '@/utils'
 
 Vue.use(Vuex)
 
@@ -51,7 +51,7 @@ const actions = {
     },
     async logout (context: any) {
       try {
-        await Api.logout(state.access_token);
+        await Api.logout(context.state.access_token);
         context.commit('deleteJwtToken');
         return null;
       }
@@ -165,6 +165,7 @@ const mutations = {
     setJwtToken (state: any, payload: any) {
       console.log('setJwtToken payload = ', payload)
       state.access_token = payload.jwt;
+      localStorage.setItem('access_token', payload.jwt)
       //localStorage.access_token = payload.jwt
     },
     setTutorInfo (state: any, payload: any) {

@@ -2,6 +2,8 @@ from app import db
 from app.exceptions import SubjectNotExist, CheckpointNotExist, CheckpointFieldNotExist
 from app.models import Subject, Checkpoint, CheckpointField
 
+dates_names = ['Дата проведения', 'Дата сдачи', 'Льготный срок сдачи', 'Крайний срок сдачи']
+
 class CheckpointService:
     def add_base_fields(self, checkpoints):
         for checkpoint in checkpoints:
@@ -93,7 +95,8 @@ class CheckpointService:
         checkpoints = subject.checkpoints.all()
         res = Checkpoint.json_list(checkpoints, ['id', 'subject_name'])
         for i, checkpoint in enumerate(checkpoints):
-            res[i]['fields'] = [ field.json(['id', 'checkpoint_id']) for field in checkpoint.fields.all() ]
+            res[i]['fields'] = [ field.json(['id', 'checkpoint_id']) for field in checkpoint.fields.all() if field.name not in dates_names]
+            res[i]['dates'] = [ field.json(['id', 'checkpoint_id']) for field in checkpoint.fields.all() if field.name in dates_names]
         return res
     
     def find_field_by_name(self, subject_name, checkpoint_name, field_name):
