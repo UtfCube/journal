@@ -2,7 +2,7 @@ from app import db
 from app.exceptions import SubjectNotExist, CheckpointNotExist, CheckpointFieldNotExist
 from app.models import Subject, Checkpoint, CheckpointField
 
-dates_names = ['Дата проведения', 'Дата сдачи', 'Льготный срок сдачи', 'Крайний срок сдачи']
+dates_names = ['Дата проведения', 'Льготный срок сдачи', 'Крайний срок сдачи']
 
 class CheckpointService:
     def add_base_fields(self, checkpoints):
@@ -21,7 +21,8 @@ class CheckpointService:
                     'name': 'Число попыток сдачи'
                 })
                 fields.append({
-                    'name': 'Дата сдачи'
+                    'name': 'Дата сдачи',
+                    'type': 'd'
                 })
                 fields.append({
                     'name': 'Льготный срок сдачи'

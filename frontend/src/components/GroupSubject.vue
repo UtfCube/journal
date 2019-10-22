@@ -26,26 +26,18 @@
             </th>
           </tr>
         </thead>
+        <tbody>
+          <tr>
+            <td/>  
+            <td v-for="(field, j) in fields" :key="j">
+              <CheckpointInfo v-if="field.type=='5'" v-model="selected" property="date" btype="number" min="2" max="5" size="is-small"/>
+              <CheckpointInfo v-else-if="field.type=='+'" v-model="selected" property="date" btype="text" size="is-small"/>
+              <CheckpointInfo v-else-if="field.type=='d'" v-model="selected" property="date" btype="date" size="is-small"/>
+              <CheckpointInfo v-else v-model="selected" property="date" btype="text" size="is-small"/>
+            </td> 
+          </tr>
+        </tbody>
       </table>
-    <!--<b-table :data="checkpoints" :columns="checkpoints">-->
-      
-      <!--<template slot-scope="props" slot="header">
-        <div style="color: red">{{ props.column.fields }}</div>
-        <b-icon
-          v-if="props.column.meta"
-          pack="fas"
-          icon="info-circle"
-          size="is-small">
-        </b-icon>
-      </template>
-      -->
-      <!--<template slot-scope="props">
-        <b-table-column class="vertical-text" v-for="(element, index) in props.row.fields"
-            :key="index"
-            :label="element.name">
-        </b-table-column>
-      </template>
-    </b-table>-->
     </div>
 </template>>
 

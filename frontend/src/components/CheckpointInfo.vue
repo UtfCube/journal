@@ -1,8 +1,17 @@
 <template>
-    <b-input
+    <b-input v-if="btype!='number'"
         :type="btype"
         :value="value[property]"
         :size="size"
+        @input="update(property, $event)"
+    >
+    </b-input>
+    <b-input v-else
+        :type="btype"
+        :value="value[property]"
+        :size="size"
+        :min="min"
+        :max="max"
         @input="update(property, $event)"
     >
     </b-input>
@@ -33,6 +42,16 @@ export default class CheckpointInfo extends Vue {
     type: String,
   })
   private size: string;
+
+  @Prop({
+    type: String,
+  })
+  private min: number;
+  
+  @Prop({
+    type: String,
+  })
+  private max: number;
 
   private localDate: string = '';
 
