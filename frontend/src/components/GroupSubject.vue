@@ -32,10 +32,18 @@
               <span>{{userInfo.fullname}}</span>
             </td>  
             <td v-for="(p, j) in userInfo.progress" :key="j">
-              <CheckpointInfo v-if="p.type=='5'" v-model="userInfo.progress[j]" property="result" btype="number" min="1" max="5" size="is-small"/>
-              <span v-else-if="p.type=='+'" @click="change(p)">{{ p.result }}</span>
-              <CheckpointInfo v-else-if="p.type=='d'" v-model="userInfo.progress[j]" property="result" btype="date" size="is-small"/>
-              <CheckpointInfo v-else v-model="userInfo.progress[j]" property="result" btype="text" size="is-small"/>
+              <span v-if="p.type=='+'" @click="saveCell(userInfo.username, change(p))">{{ p.result ? p.result: "-"  }}</span>
+              <CheckpointInfo v-else-if="p.type=='5'" :value="userInfo.progress[j]" @input="saveCell(userInfo.username, $event)" property="result" btype="number" min="1" max="5" size="is-small"/>
+              <CheckpointInfo v-else-if="p.type=='n'" :value="userInfo.progress[j]" @input="saveCell(userInfo.username, $event)" property="result" btype="number" min="0" size="is-small"/>
+              <CheckpointInfo v-else-if="p.type=='d'" :value="userInfo.progress[j]" @input="saveCell(userInfo.username, $event)" property="result" btype="date" size="is-small"/>
+              <b-select v-else-if="p.type=='p'" :value="p.result" @input="saveTutor(userInfo.username, p, $event)" placeholder="Преподаватель">
+                <option
+                    v-for="(tutor, id) in tutors"
+                    :key="id">
+                    {{ tutor.fio }}
+                </option>
+              </b-select>
+              <CheckpointInfo v-else :value="userInfo.progress[j]" property="result" @input="saveCell(userInfo.username, $event)" btype="text" size="is-small"/>
             </td> 
           </tr>
         </tbody>
@@ -52,15 +60,11 @@ import CheckpointInfo from './CheckpointInfo.vue';
     components: {CheckpointInfo}
 })
 export default class GroupSubject extends Vue {
-    private newProgress: any = {};
     private newDates: any = {};
-    private cp_name: string = "";
-    private newCheckpoints: any[] = [];
     private selected: any = {};
     private edit: boolean = false;
     private symbols: any = ["-", "+/-", "+", "*"]
     private dates_names:  any = ["Дата проведения", "Льготный срок сдачи", "Крайний срок сдачи"]
-    private znak: string = ""
 
     
     async beforeMount() {
@@ -69,6 +73,10 @@ export default class GroupSubject extends Vue {
             this.$dialog.alert({ ...DialogError, message: error });
         }
         error = await this.$store.dispatch('getGradesTable', this.$route.params);
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
+        error = await this.$store.dispatch('getTutors');
         if (error) {
             this.$dialog.alert({ ...DialogError, message: error });
         }
@@ -87,6 +95,10 @@ export default class GroupSubject extends Vue {
       return this.$store.getters.getFields
     }
 
+    get tutors() {
+      return this.$store.state.tutors
+    }
+
     get dates() {
       for (let checkpoint of this.$store.state.currentCheckpoints) {
         this.newDates[checkpoint.name] = checkpoint.dates
@@ -99,28 +111,53 @@ export default class GroupSubject extends Vue {
     }
 
     async save(cp_name: string, info: any) {
-      let i = this.dates_names.indexOf(info['name'])
-      if (i != -1) {
-        let left = 0;
-        let right = 0;
-      }
-      //this.newDates = {...this.newDates, [cp_name]: info}
       const error = await this.$store.dispatch('addDates', { ...this.$route.params, dates: {[cp_name]: [info]}});
       if (error) {
           this.$dialog.alert({ ...DialogError, message: error });
       }
     }
 
+    async saveCell(username: string, info: any) {
+      let progress = []
+      progress.push({
+        "username": username,
+        "progress": [
+          {
+            "name": info.cp_name,
+            "results": [
+              {
+                "name": info.name,
+                "result": info.result
+              }
+            ]
+          }
+        ]
+      })
+      const error = await this.$store.dispatch('addProgress', { ...this.$route.params, progress: progress});
+      if (error) {
+          this.$dialog.alert({ ...DialogError, message: error });
+      }
+    }
+
+    async saveTutor(username: string, p: any, tutor:string) {
+      console.log(tutor)
+      let info = JSON.parse(JSON.stringify(p))
+      info.result = tutor
+      await this.saveCell(username, info)
+    }
+
     change(p: any) {
-      let i = this.symbols.indexOf(p.result)
+      let res = JSON.parse(JSON.stringify(p))
+      let i = this.symbols.indexOf(res.result)
       if (i == -1) {
-        p.result = '+/-'
+        res.result = '+/-'
       }
       else {
         i = (i + 1) % this.symbols.length
-        p.result = this.symbols[i]
+        res.result = this.symbols[i]
       }
-      console.log(p)
+      console.log(res)
+      return res
     }
 }
 </script>
@@ -130,6 +167,7 @@ export default class GroupSubject extends Vue {
   border-collapse: collapse;
   td {
     width: 20px;
+    border: 1px solid rgb(0, 0, 0);
   }
   th {
     border-bottom: 1px solid rgb(0, 0, 0);
@@ -138,6 +176,7 @@ export default class GroupSubject extends Vue {
     border-right: 1px solid rgb(0, 0, 0);
     padding: 10px 10px;
     text-align: center;
+    width: 500px;
   }
   td {
     text-align: center;

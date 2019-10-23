@@ -17,6 +17,7 @@ const state = {
   gradesTable: [],
   currentCheckpoints: [],
   progress: {},
+  tutors: []
 }
 
 const actions = {  
@@ -101,6 +102,15 @@ const actions = {
         return error.response.data.msg;
       }
     },
+    async getTutors(context: any, payload: any) {
+      try {
+        const response = await Api.getTutors(context.state.access_token);
+        context.commit('setTutors', { tutors: response.data });
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
+    },
     async updateGradesTable(context: any, payload: any) {
       try {
         await Api.updateGradesTable(context.state.access_token, payload);
@@ -126,6 +136,15 @@ const actions = {
         await Api.addDates(context.state.access_token, payload);
         context.commit('updateDates', { newDates: payload.dates });
       } catch (error) {
+        return error.response.data.msg;
+      }
+    },
+    async addProgress (context: any, payload: any) { 
+      try {
+        await Api.addProgress(context.state.access_token, payload);
+        context.commit('updateGradesTable', { newProgress: payload.progress });
+      } catch (error) {
+        console.log(error)
         return error.response.data.msg;
       }
     },
@@ -193,15 +212,34 @@ const mutations = {
       console.log('setSubjects payload = ', payload)
       state.subjects = payload.subjects
     },
+    setTutors (state: any, payload: any) {
+      console.log('setTutors payload = ', payload)
+      state.tutors = payload.tutors
+    },
     updateProgress(state: any, payload: any) {
       console.log("update progress", payload)
       Vue.set(payload.progress, payload.property, payload.value);
     },
     updateGradesTable(state: any, payload: any) {
-      for (let checkpoint in payload.newProgress) {
-        for (let user_info of payload.newProgress[checkpoint]) {
-          let pr = state.gradesTable.find((x: any) => x.user_id == user_info.user_id)
-          Vue.set(pr.progress, checkpoint, user_info.progress)
+      console.log("updateGradesTable payload = ", payload)
+      for (let newInfo of payload.newProgress) {
+        let userInfo = state.gradesTable.find((x: any) => x.username == newInfo.username)
+        for (let progress of newInfo.progress) {
+          let userProgress = userInfo.progress.find((x: any) => x.name == progress.name)
+          if (userProgress) {
+            for (let result of progress.results) {
+              let userResult = userProgress.results.find((x: any) => x.name == result.name)
+              if (userResult) {
+                Vue.set(userResult, 'result', result.result)
+              }
+              else {
+                Vue.set(userProgress.results, userProgress.results.length, result)
+              }
+            }
+          }
+          else {
+            Vue.set(userInfo.progress, userInfo.progress.length, progress)
+          }
         }
       }
     },
@@ -263,11 +301,16 @@ const getters = {
     },
 
     getProgress (state: any, getters: any) {
-      let newProgress = [...state.gradesTable]
+      let newProgress = JSON.parse(JSON.stringify(state.gradesTable))
       for (let userInfo of newProgress) {
         let old_progress = userInfo.progress
-        console.log(getters.getFields)
-        userInfo.progress = getters.getFields
+        let fields = []
+        for (let checkpoint of state.currentCheckpoints) {
+          let tmp = JSON.parse(JSON.stringify(checkpoint.fields))
+          tmp.forEach((el: any) => el['cp_name'] = checkpoint.name)
+          fields.push(...tmp)
+        }
+        userInfo.progress = fields
         for (let checkpoint_res of old_progress) {
           for (let field_res of checkpoint_res.results) {
             let update_res = userInfo.progress.find((x:any) => x.cp_name == checkpoint_res.name && x.name == field_res.name)
@@ -275,7 +318,6 @@ const getters = {
           }
         }
       }
-      console.log(newProgress)
       return newProgress
     },
 

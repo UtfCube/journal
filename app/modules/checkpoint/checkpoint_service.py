@@ -18,7 +18,8 @@ class CheckpointService:
             })
             if field_num > 1:
                 fields.append({
-                    'name': 'Число попыток сдачи'
+                    'name': 'Число попыток сдачи',
+                    'type': "n"
                 })
                 fields.append({
                     'name': 'Дата сдачи',
@@ -30,7 +31,27 @@ class CheckpointService:
                 fields.append({
                     'name': 'Крайний срок сдачи'
                 })
-            yield checkpoint
+
+    def add_base_checkpoint(self, checkpoints):
+        checkpoint = {
+            "name": "",
+            "fields": [
+                {
+                    "name": "Оценка за работу в семестре",
+                    "type": "5"
+                },
+                {
+                    "name": "Ведущий преподаватель",
+                    "type": "p"
+                },
+                {
+                    "name": "Признаки плагиата",
+                    "is_hidden": True
+                }
+                
+            ]
+        }
+        checkpoints.append(checkpoint)
 
     def from_csv(self, csv_list):
         for checkpoint_csv in csv_list:
@@ -56,7 +77,8 @@ class CheckpointService:
             yield checkpoint
 
     def add(self, subject_name, checkpoints_json):
-        checkpoints_json = self.add_base_fields(checkpoints_json)
+        self.add_base_fields(checkpoints_json)
+        self.add_base_checkpoint(checkpoints_json)
         subject = Subject.query.filter_by(name=subject_name).first()
         if subject is None: 
             subject = Subject(name=subject_name)

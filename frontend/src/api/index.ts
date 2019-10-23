@@ -10,6 +10,12 @@ export default class Api {
     public static addDates(jwt: string, payload: any) {
         return axios.post(`/${payload.subject_name}/${payload.group_id}/dates`, payload.dates, { headers: { Authorization: `Bearer ${jwt}`}})
     }
+    public static addProgress(jwt: string, payload: any) {
+        return axios.post(`/${payload.subject_name}/${payload.group_id}/progress`, payload.progress, { headers: { Authorization: `Bearer ${jwt}`}})
+    }
+    public static getTutors(jwt: string) {
+        return axios.get('/tutors', { headers: { Authorization: `Bearer ${jwt}`}})
+    }
     public static getGroups(jwt: string) {
         return axios.get('/groups', { headers: { Authorization: `Bearer ${jwt}`}})
     }

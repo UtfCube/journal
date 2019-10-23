@@ -8,6 +8,11 @@ from flask import request
 tutor_service = TutorService()
 auth_service = AuthService()
 
+class Tutors(Resource):
+    @auth_user
+    def get(self, current_user):
+        return tutor_service.get_all()
+
 class GroupSubject(Resource):
     @auth_user
     @is_role('tutor')

@@ -38,7 +38,7 @@ class AdminService:
 
     def create_subject(self, subject_name, checkpoints):
         subject_name = subject_name[0]
-        checkpoints = checkpoint_service.from_csv(checkpoints)
+        checkpoints = list(checkpoint_service.from_csv(checkpoints))
         return checkpoint_service.add(subject_name, checkpoints)
 
     def get_home_info(self):
