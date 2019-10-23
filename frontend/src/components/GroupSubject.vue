@@ -27,13 +27,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td/>  
-            <td v-for="(field, j) in fields" :key="j">
-              <CheckpointInfo v-if="field.type=='5'" v-model="selected" property="date" btype="number" min="1" max="5" size="is-small"/>
-              <span v-else-if="field.type=='+'" @click="change">{{ znak=="" ? "-" : znak  }}</span>
-              <CheckpointInfo v-else-if="field.type=='d'" v-model="selected" property="date" btype="date" size="is-small"/>
-              <CheckpointInfo v-else v-model="selected" property="date" btype="text" size="is-small"/>
+          <tr v-for="(userInfo, i) in progress" :key="i">
+            <td>
+              <span>{{userInfo.fullname}}</span>
+            </td>  
+            <td v-for="(p, j) in userInfo.progress" :key="j">
+              <CheckpointInfo v-if="p.type=='5'" v-model="userInfo.progress[j]" property="result" btype="number" min="1" max="5" size="is-small"/>
+              <span v-else-if="p.type=='+'" @click="change(p)">{{ p.result }}</span>
+              <CheckpointInfo v-else-if="p.type=='d'" v-model="userInfo.progress[j]" property="result" btype="date" size="is-small"/>
+              <CheckpointInfo v-else v-model="userInfo.progress[j]" property="result" btype="text" size="is-small"/>
             </td> 
           </tr>
         </tbody>
@@ -62,15 +64,14 @@ export default class GroupSubject extends Vue {
 
     
     async beforeMount() {
-        console.log(this.$route.params)
         let error = await this.$store.dispatch('getCheckpoints', {subject_name: this.$route.params.subject_name});
         if (error) {
             this.$dialog.alert({ ...DialogError, message: error });
         }
-        //error = await this.$store.dispatch('getGradesTable', this.$route.params);
-        //if (error) {
-        //    this.$dialog.alert({ ...DialogError, message: error });
-        //}
+        error = await this.$store.dispatch('getGradesTable', this.$route.params);
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 
     getFieldsLength(checkpoint: any) {
@@ -83,11 +84,7 @@ export default class GroupSubject extends Vue {
     }
 
     get fields() {
-      let fields = []
-      for (let checkpoint of this.$store.state.currentCheckpoints) {
-        fields.push(...checkpoint.fields)
-      }
-      return fields
+      return this.$store.getters.getFields
     }
 
     get dates() {
@@ -95,6 +92,10 @@ export default class GroupSubject extends Vue {
         this.newDates[checkpoint.name] = checkpoint.dates
       }
       return this.newDates
+    }
+
+    get progress() {
+      return this.$store.getters.getProgress
     }
 
     async save(cp_name: string, info: any) {
@@ -110,15 +111,16 @@ export default class GroupSubject extends Vue {
       }
     }
 
-    change() {
-      let i = this.symbols.indexOf(this.znak)
+    change(p: any) {
+      let i = this.symbols.indexOf(p.result)
       if (i == -1) {
-        this.znak = '+/-'
+        p.result = '+/-'
       }
       else {
         i = (i + 1) % this.symbols.length
-        this.znak = this.symbols[i]
+        p.result = this.symbols[i]
       }
+      console.log(p)
     }
 }
 </script>

@@ -18,21 +18,25 @@ class ProgressService:
         tutor = tutor_service.find_tutor_by_username(current_user)
         tgs = tutor_service.find_tgs(tutor, subject_name, group_id)
         for result in data:
-            student = student_service.find_student_by_username(result['student_username'])
-            checkpoint_name = result['checkpoint']
-            checkpoint = tgs.subject.checkpoints.filter_by(name=checkpoint_name).first()
-            if checkpoint is None:
-                raise CheckpointNotExist(checkpoint_name)
-            field_name = result['field']
-            field = checkpoint.fields.filter_by(name=field_name).first()
-            if field is None:
-                raise CheckpointFieldNotExist(checkpoint_name, field_name)
-            progress = field.progress.filter_by(student_id=student.user_id).first()
-            if progress is None:
-                progress = Progress()
-                progress.checkpoint_field = field
-                student.progress.append(progress)
-            progress.result = result['result']
+            student = student_service.find_student_by_username(result['username'])
+            progress = result['progress']
+            for p in progress:
+                checkpoint_name = p['name']
+                checkpoint = tgs.subject.checkpoints.filter_by(name=checkpoint_name).first()
+                if checkpoint is None:
+                    raise CheckpointNotExist(checkpoint_name)
+                results = p['results']
+                for result in results:
+                    field_name = result['name']
+                    field = checkpoint.fields.filter_by(name=field_name).first()
+                    if field is None:
+                        raise CheckpointFieldNotExist(checkpoint_name, field_name)
+                    progress = field.progress.filter_by(student_id=student.user_id).first()
+                    if progress is None:
+                        progress = Progress()
+                        progress.checkpoint_field = field
+                        student.progress.append(progress)
+                    progress.result = result['result']
         db.session.commit()
 
     def get(self, current_user, subject_name, group_id):
@@ -60,6 +64,6 @@ class ProgressService:
             t = res[s]
             t.sort(key=itemgetter(0))
             results.append({"username": s[1], 
-                **Student.json(s[0], ['user_id', 'admission_year', 'group_id']), 
-                "progress": {k: {y:z for x,y,z in g} for k,g in groupby(t, key=itemgetter(0)) if k is not None}})
+                **Student.json(s[0], ['user_id', 'admission_year', 'group_id']),
+                "progress": [{"name": k, "results": [{"name": y, "result":z} for x,y,z in g] } for k,g in groupby(t, key=itemgetter(0)) if k is not None]})
         return results

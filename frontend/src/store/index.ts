@@ -252,6 +252,33 @@ const getters = {
       return isValidJwt(state.access_token);
     },
 
+    getFields(state: any) {
+      let fields = []
+      for (let checkpoint of state.currentCheckpoints) {
+        let tmp = JSON.parse(JSON.stringify(checkpoint.fields))
+        tmp.forEach((el: any) => el['cp_name'] = checkpoint.name)
+        fields.push(...tmp)
+      }
+      return fields
+    },
+
+    getProgress (state: any, getters: any) {
+      let newProgress = [...state.gradesTable]
+      for (let userInfo of newProgress) {
+        let old_progress = userInfo.progress
+        console.log(getters.getFields)
+        userInfo.progress = getters.getFields
+        for (let checkpoint_res of old_progress) {
+          for (let field_res of checkpoint_res.results) {
+            let update_res = userInfo.progress.find((x:any) => x.cp_name == checkpoint_res.name && x.name == field_res.name)
+            update_res['result'] = field_res['result']
+          }
+        }
+      }
+      console.log(newProgress)
+      return newProgress
+    },
+
     getProgressByCheckpoint: (state: any) => (checkpoint: string) => {
       let pr = state.gradesTable.filter((x: any) => !!x.progress[checkpoint]).map((x: any) => { 
         return {

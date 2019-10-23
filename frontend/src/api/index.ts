@@ -40,7 +40,7 @@ export default class Api {
             { headers: { Authorization: `Bearer ${jwt}`}});
     }
     public static getGradesTable(jwt: string, params: any) {
-        return axios.get(`/tutor/${params.subject_name}/${params.group_id}`,
+        return axios.get(`/${params.subject_name}/${params.group_id}/progress`,
             { headers: { Authorization: `Bearer ${jwt}`}});
     }
     public static updateGradesTable(jwt: string, payload: any) {
