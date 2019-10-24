@@ -4,6 +4,9 @@
         <thead>
           <tr>
             <th>
+              fullname
+            </th>
+            <th>
               ФИО
             </th>
             <th v-for="(checkpoint, i) in checkpoints"
@@ -16,10 +19,14 @@
           </tr>
           <tr>
             <th/>
+            <th/>
             <th class="rotate" v-for="(field, j) in fields"
                 :key=j>
                 <div>
-                  <span>
+                  <span v-if="field.name=='Оценка'" @click="sort(field.cp_name)">
+                    {{ field.name }}
+                  </span>
+                  <span v-else>
                     {{ field.name }}
                   </span>
                 </div>
@@ -28,6 +35,9 @@
         </thead>
         <tbody>
           <tr v-for="(userInfo, i) in progress" :key="i">
+            <td>
+              <span>{{userInfo.fullname}}</span>
+            </td>
             <td>
               <span>{{userInfo.fio}}</span>
             </td>  
@@ -124,6 +134,10 @@ export default class GroupSubject extends Vue {
       return checkpoint.fields.length
     }
 
+    sort(cp_name: string) {
+      this.$store.commit('sortGradeTable', {cp_name: cp_name});
+    }
+
     get checkpoints() {
         return this.$store.state.currentCheckpoints
     }
@@ -187,6 +201,33 @@ export default class GroupSubject extends Vue {
       }
     }
 
+    checkDates(cp_name:string, date: string) {
+      let dates = this.dates[cp_name]
+      for (let date of dates) {
+        console.log(date)
+        if (date === "") {
+          return undefined;
+        }
+      }
+      //dates = dates.forEach((x:string) => {
+      // let from = x.split('-')
+      //  return new Date(from[0], from[1] - 1, from[2])
+      //})
+      if (dates[0] <= dates[1] && dates[1] <= dates[2]) {
+        if (date <= dates[1])
+          return 'green'
+        if (dates[1] < date && date <= dates[2]) {
+          return 'yellow'
+        }
+        if (dates[2] <= date) {
+          return 'rad'
+        }
+      }
+      else {
+        return undefined
+      }
+    }
+
     async saveCell(username: string, info: any) {
       let progress = []
       progress.push({
@@ -203,9 +244,32 @@ export default class GroupSubject extends Vue {
           }
         ]
       })
+      let cp = this.checkpoints.find((x:any) => x.name == info.cp_name)
+      let currentDate = (()=> {
+            let now = new Date()
+            var mm = now.getMonth() + 1; // getMonth() is zero-based
+            var dd = now.getDate();
+
+            return [now.getFullYear(),
+                    (mm>9 ? '' : '0') + mm,
+                    (dd>9 ? '' : '0') + dd
+                  ].join('-');
+          })()
+      if (cp.fields.length > 1 && info.name == 'Оценка') {
+        progress[0].progress[0].results.push({
+          name: "Дата сдачи",
+          result: currentDate
+        })
+      }
       const error = await this.$store.dispatch('addProgress', { ...this.$route.params, progress: progress});
       if (error) {
           this.$dialog.alert({ ...DialogError, message: error });
+      }
+      else {
+        if (cp.fields.length > 1 && info.name == 'Оценка') { 
+          let color = this.checkDates(cp.name, currentDate)
+          console.log(color)
+        }
       }
     }
 

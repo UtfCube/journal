@@ -220,6 +220,69 @@ const mutations = {
       console.log("update progress", payload)
       Vue.set(payload.progress, payload.property, payload.value);
     },
+    sortGradeTable(state:any, payload:any) {
+      console.log("sort grade table ", payload)
+      let cp_name = payload.cp_name
+      let sortGrades = JSON.parse(JSON.stringify(state.gradesTable))
+      let compare = (a:any, b:any) => {
+        let a_cp_progress = a.progress.find((x:any) => x.name == cp_name)
+        let b_cp_progress =  b.progress.find((x:any) => x.name == cp_name)
+        if (a_cp_progress) {
+          if (b_cp_progress) {
+            let a_cp_f_progress = a_cp_progress.results.find((x:any) => x.name == 'Оценка')
+            let b_cp_f_progress = b_cp_progress.results.find((x:any) => x.name == 'Оценка')
+            if (a_cp_f_progress) {
+              if (b_cp_f_progress) {
+                if ( a_cp_f_progress.result < b_cp_f_progress.result ){
+                  return 1;
+                }
+                if ( a_cp_f_progress.result > b_cp_f_progress.result ){
+                  return -1;
+                }
+                return 0;
+              }
+              else {
+                return -1;
+              } 
+            }
+            else {
+              if (b_cp_f_progress) {
+                  return 1;
+                }
+              else {
+                return 0;
+              }
+            }
+          }
+          else {
+            let a_cp_f_progress = a_cp_progress.results.find((x:any) => x.name == 'Оценка')
+            if (a_cp_f_progress) {
+              return -1;
+            }
+            else {
+              return 0;
+            }
+          }
+        }
+        else {
+          if (b_cp_progress) {
+            let b_cp_f_progress = b_cp_progress.results.find((x:any) => x.name == 'Оценка')
+            if (b_cp_f_progress) {
+              return 1;
+            }
+            else {
+              return 0;
+            }
+          }
+          else {
+            return 0;
+          }
+        }
+      }
+      sortGrades.sort(compare)
+      console.log(sortGrades)
+      state.gradesTable = sortGrades
+    },
     updateGradesTable(state: any, payload: any) {
       console.log("updateGradesTable payload = ", payload)
       for (let newInfo of payload.newProgress) {
