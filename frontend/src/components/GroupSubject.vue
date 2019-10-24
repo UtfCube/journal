@@ -227,6 +227,7 @@ export default class GroupSubject extends Vue {
         return undefined
       }
     }
+    
 
     async saveCell(username: string, info: any) {
       let progress = []
