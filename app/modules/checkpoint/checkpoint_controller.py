@@ -7,7 +7,7 @@ checkpoint_service = CheckpointService()
 
 class Checkpoints(Resource):
     @auth_user
-    @is_role(['admin', 'tutor'])
+    @is_role(['admin', 'tutor', 'student'])
     def get(self, current_user, subject):
         checkpoints = checkpoint_service.get_all(subject)
         return checkpoints

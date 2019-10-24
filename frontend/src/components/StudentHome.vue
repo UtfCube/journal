@@ -10,17 +10,13 @@
         <section>
             <b-table 
                 :data="subjects"
-                :selected.sync="selected" 
                 :hoverable="true" 
                 :striped="true"
                 focusable
-                paginated
-                per-page="5"
-                detailed
-                >
+                @click="click">
                 <template slot-scope="props">
-                    <b-table-column label="Предмет">
-                       {{ props.row }}
+                    <b-table-column label="Предмет" >
+                        {{ props.row }}
                     </b-table-column>
                 </template>
             </b-table>
@@ -34,7 +30,6 @@ import { DialogError } from '@/utils';
 
 @Component
 export default class StudentHome extends Vue {
-    private selected: object = {};
 
     get username() {
         return this.$store.state.userData.username;
@@ -51,8 +46,8 @@ export default class StudentHome extends Vue {
         }
     }
 
-    click(subject: any) {
-        this.$router.push({ name: 'progress', params: { subject: subject}})
+    click(row: any) {
+        this.$router.push({name: 'GroupSubjectS', params: {subject_name: row, group_id: "0"}});
     }
 }
 </script>

@@ -45,6 +45,8 @@ class ProgressService:
             tutor = user.tutor
             tgs = tutor_service.find_tgs(tutor, subject_name, group_id)
         else:
+            student = user.student
+            group_id =student.group_id
             tgs = AssociationTGS.query.filter_by(subject_name=subject_name, group_id=group_id).first()
             if tgs is None:
                 raise AssociationNotExist(subject_name=subject_name, group_id=group_id)
@@ -66,4 +68,5 @@ class ProgressService:
             results.append({"username": s[1], 
                 **Student.json(s[0], ['user_id', 'admission_year', 'group_id']),
                 "progress": [{"name": k, "results": [{"name": y, "result":z} for x,y,z in g] } for k,g in groupby(t, key=itemgetter(0)) if k is not None]})
+        print(results)
         return results

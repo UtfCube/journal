@@ -1,10 +1,10 @@
 <template>
     <div>
-      <table class="table table-header-rotated">
+      <table v-if="role=='tutor'" class="table table-header-rotated">
         <thead>
           <tr>
             <th>
-              fullname
+              ФИО
             </th>
             <th v-for="(checkpoint, i) in checkpoints"
               :key="i" :colspan="checkpoint.fields.length">
@@ -29,7 +29,7 @@
         <tbody>
           <tr v-for="(userInfo, i) in progress" :key="i">
             <td>
-              <span>{{userInfo.fullname}}</span>
+              <span>{{userInfo.fio}}</span>
             </td>  
             <td v-for="(p, j) in userInfo.progress" :key="j">
               <span v-if="p.type=='+'" @click="saveCell(userInfo.username, change(p))">{{ p.result ? p.result: "-"  }}</span>
@@ -44,6 +44,43 @@
                 </option>
               </b-select>
               <CheckpointInfo v-else :value="userInfo.progress[j]" property="result" @input="saveCell(userInfo.username, $event)" btype="text" size="is-small"/>
+            </td> 
+          </tr>
+        </tbody>
+      </table>
+      <table v-else-if="role=='student'" class="table table-header-rotated">
+        <thead>
+          <tr>
+            <th>
+              fullname
+            </th>
+            <th v-for="(checkpoint, i) in checkpoints_s"
+              :key="i" :colspan="checkpoint.fields.length">
+              {{ checkpoint.name }}
+              <b-field v-for="(date, j) in dates[checkpoint.name]" :key="j" :label="date.name" label-position="on-border">
+                <span>{{date.date}}</span>
+              </b-field>
+            </th>
+          </tr>
+          <tr>
+            <th/>
+            <th class="rotate" v-for="(field, j) in fields_s"
+                :key=j>
+                <div>
+                  <span>
+                    {{ field.name }}
+                  </span>
+                </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(userInfo, i) in progress_s" :key="i">
+            <td>
+              <span>{{userInfo.fullname}}</span>
+            </td>  
+            <td v-for="(p, j) in userInfo.progress" :key="j">
+              <span>{{ p.result }}</span>
             </td> 
           </tr>
         </tbody>
@@ -95,6 +132,22 @@ export default class GroupSubject extends Vue {
       return this.$store.getters.getFields
     }
 
+    get checkpoints_s() {
+      let c = []
+      for (let checkpoint of this.$store.state.currentCheckpoints) {
+        c.push({
+          "name": checkpoint.name,
+          "fields": checkpoint.fields.filter((x:any) => x.is_hidden === false)
+        })
+      }
+      return c
+      //this.$store.state.currentCheckpoints
+    }
+
+    get fields_s() {
+      return this.$store.getters.getFields.filter((x:any) => x.is_hidden === false)
+    }
+
     get tutors() {
       return this.$store.state.tutors
     }
@@ -108,6 +161,23 @@ export default class GroupSubject extends Vue {
 
     get progress() {
       return this.$store.getters.getProgress
+    }
+
+    get progress_s() {
+      let p:any = []
+      for (let pr of this.$store.getters.getProgress) {
+        p.push({
+          username: pr.username,
+          fio: pr.fio,
+          fullname: pr.fullname,
+          progress: pr.progress.filter((x: any)=> x.is_hidden === false)
+        })
+      }
+      return p
+    }
+
+    get role() {
+      return this.$store.state.userData.role
     }
 
     async save(cp_name: string, info: any) {
@@ -140,7 +210,6 @@ export default class GroupSubject extends Vue {
     }
 
     async saveTutor(username: string, p: any, tutor:string) {
-      console.log(tutor)
       let info = JSON.parse(JSON.stringify(p))
       info.result = tutor
       await this.saveCell(username, info)
@@ -156,7 +225,6 @@ export default class GroupSubject extends Vue {
         i = (i + 1) % this.symbols.length
         res.result = this.symbols[i]
       }
-      console.log(res)
       return res
     }
 }
