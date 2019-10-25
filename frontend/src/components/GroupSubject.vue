@@ -41,7 +41,7 @@
             <td>
               <span>{{userInfo.fio}}</span>
             </td>  
-            <td v-for="(p, j) in userInfo.progress" :key="j">
+            <td v-for="(p, j) in userInfo.progress" :style="getColor(userInfo.fio, userInfo.progress, p)" :key="j">
               <span v-if="p.type=='+'" @click="saveCell(userInfo.username, change(p))">{{ p.result ? p.result: "-"  }}</span>
               <CheckpointInfo v-else-if="p.type=='5'" :value="userInfo.progress[j]" @input="saveCell(userInfo.username, $event)" property="result" btype="number" min="1" max="5" size="is-small"/>
               <CheckpointInfo v-else-if="p.type=='n'" :value="userInfo.progress[j]" @input="saveCell(userInfo.username, $event)" property="result" btype="number" min="0" size="is-small"/>
@@ -204,30 +204,37 @@ export default class GroupSubject extends Vue {
     checkDates(cp_name:string, date: string) {
       let dates = this.dates[cp_name]
       for (let date of dates) {
-        console.log(date)
-        if (date === "") {
-          return undefined;
+        if (date.date === "") {
+          return 'background-color:#FFFFFF';
         }
       }
-      //dates = dates.forEach((x:string) => {
-      // let from = x.split('-')
-      //  return new Date(from[0], from[1] - 1, from[2])
-      //})
-      if (dates[0] <= dates[1] && dates[1] <= dates[2]) {
-        if (date <= dates[1])
-          return 'green'
-        if (dates[1] < date && date <= dates[2]) {
-          return 'yellow'
+      if (dates[0].date <= dates[1].date && dates[1].date <= dates[2].date) {
+        if (date <= dates[1].date)
+          return 'background-color:#00FF00'
+        if (dates[1].date < date && date <= dates[2].date) {
+          return 'background-color:#FFFF00'
         }
-        if (dates[2] <= date) {
-          return 'rad'
+        if (dates[2].date <= date) {
+          return 'background-color:#FF0000'
         }
       }
       else {
-        return undefined
+        return 'background-color:#FFFFFF'
       }
     }
     
+    getColor(fio:string, user_progress:any, field_progress:any) {
+      let dates = this.dates[field_progress.cp_name]
+      if (dates.length <= 1) {
+        return 'background-color:#FFFFFF'
+      }
+      if (field_progress.name == 'Оценка') {
+        let date = user_progress.find((x:any) => x.name === 'Дата сдачи')
+        let color = this.checkDates(field_progress.cp_name, date.result)
+        return color
+      }
+      return 
+    }
 
     async saveCell(username: string, info: any) {
       let progress = []

@@ -280,7 +280,6 @@ const mutations = {
         }
       }
       sortGrades.sort(compare)
-      console.log(sortGrades)
       state.gradesTable = sortGrades
     },
     updateGradesTable(state: any, payload: any) {
