@@ -1,0 +1,11 @@
+[Unit]
+Description=Journal service
+After=network.target
+[Service]
+User=USER
+Group=www-data
+WorkingDirectory=WPATH
+Environment="PATH=WPATH/env/bin"
+ExecStart=WPATH/env/bin/gunicorn --bind unix:journal.sock -m 007 journal:app
+[Install]
+WantedBy=multi-user.target

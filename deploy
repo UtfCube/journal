@@ -1,0 +1,67 @@
+Установить Ubuntu
+Скопировать папку с проктом в домашний каталог пользователя USER
+
+Уствновить следующие зависимости:
+sudo apt install net-tools python3.7 virtualenv postgresql nginx nodejs npm 
+
+Добавить в файл ~/.bashrc следующую строку:
+alias python="/usr/bin/python3.7"
+
+Настроить пользователя postgres:
+sudo passwd postgres
+Password: postgres
+su postgres
+createdb journal
+psql
+ALTER USER postgres PASSWORD 'postgres';
+\q
+exit
+
+В терминале войти в папку с проектом и выполнить следующие команды:
+virtualenv env --python="python3.7"
+source env/bin/activate
+pip install -r requirements.txt
+export FLASK_APP=journal.py
+flask db upgrade
+deactivate
+cp .env.example .env
+
+Войти в папку frontend
+cd frontend
+Установить зависимости:
+npm install
+
+Скопировать файл .env.example в файл .env и отредактировать его заменив localhost на ip Ubuntu 
+
+Собрать фронтенд:
+npm run build
+
+Выйти в домашнюю папку пользователя
+
+Сгенерировать ssl сертификаты:
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/journal.key -out /etc/ssl/certs/journal.crt
+
+Выставить необходимые группу и права папке с проектом
+sudo chown USER:www-data -R journal
+sudo chmod 750 -R journal
+
+Открыть файл journal.service и заменить USER нв имя пользователя и WPATH на полный путь к папке с проектом (путь заканчивается папкой journal)
+Пример USER:
+efimov
+Пример WPATH:
+/home/efimov/journal
+
+Скопировать файл journal.service в папку /etc/systemd/system
+
+Открыть файл journal.conf и заменить WPATH на полный путь к папке с проектом (путь заканчивается папкой journal)
+Пример WPATH:
+/home/efimov/journal
+
+Скопировать файл journal.conf в папку /etc/nginx/sites-enabled
+
+Добавить journal.service в init.d и запустить сервис
+sudo systemctl enable journal
+sudo systemctl start journal
+
+Перезапустить nginx
+sudo systemctl start nginx
