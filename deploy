@@ -41,7 +41,7 @@ npm run build
 Сгенерировать ssl сертификаты:
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/journal.key -out /etc/ssl/certs/journal.crt
 
-Выставить необходимые группу и права папке с проектом
+Выставить необходимые группу и права папке с проектом (заменить USER нв имя пользователя)
 sudo chown USER:www-data -R journal
 sudo chmod 750 -R journal
 
@@ -61,6 +61,7 @@ efimov
 
 Добавить journal.service в init.d и запустить сервис
 sudo systemctl enable journal
+sudo systemctl daemon-reload
 sudo systemctl start journal
 
 Перезапустить nginx
