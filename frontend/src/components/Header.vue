@@ -23,9 +23,6 @@
         <router-link v-if="!isAuthenticated" :to="{ name: 'login' }" class="navbar-item">
           Войти
         </router-link>
-        <router-link v-if="!isAuthenticated" :to="{ name: 'register' }" class="navbar-item">
-          Регистрация
-        </router-link>
         <router-link v-if="isAuthenticated" :to="{ name: 'logout' }" class="navbar-item">
           Выйти
         </router-link>

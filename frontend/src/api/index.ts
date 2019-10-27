@@ -34,8 +34,8 @@ export default class Api {
     public static authenticate (userData: any) {  
         return axios.post('/login', userData)
     }
-    public static register (type: string, userData: any) {  
-        return axios.post(`/register/${type}`, userData)
+    public static register (userData: any) {  
+        return axios.post(`/register`, userData)
     }
     public static getCheckpoints(jwt: string, params: any) {
         return axios.get(`/${params.subject_name}/checkpoints`, { headers: { Authorization: `Bearer ${jwt}`}})

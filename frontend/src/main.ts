@@ -8,7 +8,8 @@ import Buefy from 'buefy'
 Vue.use(Buefy)
 
 Vue.config.productionTip = false;
-axios.defaults.baseURL = 'http://localhost:5000/api'
+axios.defaults.baseURL = process.env.VUE_APP_SERVER_HOST
+console.log(process.env.VUE_APP_SERVER_HOST)
 
 new Vue({
   router,

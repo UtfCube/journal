@@ -10,59 +10,41 @@
     <section class="section">
       <div class="container">
         <div class="control">
-            <button class="button is-large is-primary"
+            <button class="button is-small is-primary"
             v-for="(component, tab) in tabs"
             :key="tab"
             @click="currentTab = tab"
             >{{ tab }}</button>
         </div>
         <div class="field">
-          <label class="label is-large" for="lastname">Фамилия:</label>
+          <label class="label is-small" for="lastname">ФИО:</label>
           <div class="control">
-            <input type="text" class="input is-large" id="lastname" v-model="form.lastname">
-          </div>
-        </div>
-        <div class="field">
-          <label class="label is-large" for="firstname">Имя:</label>
-          <div class="control">
-            <input type="text" class="input is-large" id="firstname" v-model="form.firstname">
-          </div>
-        </div>
-        <div class="field">
-          <label class="label is-large" for="patronymic">Отчество:</label>
-          <div class="control">
-            <input type="text" class="input is-large" id="patronymic" v-model="form.patronymic">
-          </div>
-        </div>
-        <div class="field">
-          <label class="label is-large" for="rank">Воинское звание:</label>
-          <div class="control">
-            <input type="text" class="input is-large" id="rank" v-model="form.rank">
+            <input type="text" class="input is-small" id="lastname" v-model="form.fio">
           </div>
         </div>
         <component v-model="form"
             :is="currentTabComponent"
         ></component>
         <div class="field">
-          <label class="label is-large" for="username">Имя пользователя:</label>
+          <label class="label is-small" for="username">Имя пользователя:</label>
           <div class="control">
-            <input type="text" class="input is-large" id="username" v-model="form.username">
+            <input type="text" class="input is-small" id="username" v-model="form.username">
           </div>
         </div>
         <div class="field">
-          <label class="label is-large" for="password">Пароль:</label>
+          <label class="label is-small" for="password">Пароль:</label>
           <div class="control">
-            <input type="password" class="input is-large" id="password" v-model="form.password">
+            <input type="password" class="input is-small" id="password" v-model="form.password">
           </div>
         </div>
         <div class="field">
-          <label class="label is-large" for="mirror_password">Повторите пароль:</label>
+          <label class="label is-small" for="mirror_password">Повторите пароль:</label>
           <div class="control">
-            <input type="password" class="input is-large" id="mirror_password" v-model="mirror_password">
+            <input type="password" class="input is-small" id="mirror_password" v-model="mirror_password">
           </div>
         </div>
         <div class="control">
-          <a class="button is-large is-primary" @click="register">Зарегистрироваться</a>
+          <a class="button is-small is-primary" @click="register">Зарегистрироваться</a>
         </div>
 
       </div>
@@ -98,12 +80,12 @@ export default class Register extends Vue {
   }
 
   async register () {
-    const error = await this.$store.dispatch('register', { type: this.currentType, form: this.form })
+    const error = await this.$store.dispatch('register', { role: this.currentType, ...this.form })
     if (error) {
         this.$dialog.alert({ ...DialogError, message: error });
       }   
     else {
-      this.$router.push(`/${this.currentType}/home`);
+      this.$router.push(`/home`);
     }
   }
 }

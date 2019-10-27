@@ -43,7 +43,7 @@ const actions = {
         let { username, password } = payload.form
         let userData = { username, password }
         context.commit('setUserData', { userData })
-        await Api.register(payload.type, payload.form);
+        await Api.register(payload);
         return await context.dispatch('login', userData);
       }
       catch (error) {

@@ -89,7 +89,7 @@
             <td>
               <span>{{userInfo.fullname}}</span>
             </td>  
-            <td v-for="(p, j) in userInfo.progress" :key="j">
+            <td v-for="(p, j) in userInfo.progress" :style="getColor(userInfo.fio, userInfo.progress, p)" :key="j">
               <span>{{ p.result }}</span>
             </td> 
           </tr>
@@ -324,13 +324,13 @@ export default class GroupSubject extends Vue {
     border: 1px solid rgb(0, 0, 0);
   }
   th.rotate {
-    height: 195px;
+    height: 250px;
     white-space: nowrap;
     // Firefox needs the extra DIV for some reason, otherwise the text disappears if you rotate 
     > div {
       transform: 
         // Magic Numbers
-        translate(0px, 160px)
+        translate(0px, 220px)
         // 45 is really 360-45
         rotate(-90deg);
       width: 20px;

@@ -1,10 +1,4 @@
 <template>
-  <div class="field">
-    <label class="label is-large" for="degree">Ученая степень:</label>
-    <div class="control">
-      <input type="text" class="input is-large" id="degree" :value="value.degree" @input="update('degree', $event.target.value)">
-    </div>
-  </div>
 </template>
 
 <script lang="ts">
