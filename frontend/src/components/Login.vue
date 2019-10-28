@@ -11,19 +11,19 @@
     <section class="section">
       <div class="container">
         <div class="field">
-          <label class="label is-large" for="username">Имя пользователя:</label>
+          <label class="label is-medium" for="username">Имя пользователя:</label>
           <div class="control">
-            <input type="text" class="input is-large" id="username" v-model="username">
+            <input type="text" class="input is-medium" id="username" v-model="username">
           </div>
         </div>
         <div class="field">
-          <label class="label is-large" for="password">Пароль:</label>
+          <label class="label is-medium" for="password">Пароль:</label>
           <div class="control">
-            <input type="password" class="input is-large" id="password" v-model="password">
+            <input type="password" class="input is-medium" id="password" v-model="password">
           </div>
         </div>
         <div class="control">
-          <a class="button is-large is-primary" @click="authenticate">Войти</a>
+          <a class="button is-medium is-primary" @click="authenticate">Войти</a>
         </div>
 
       </div>

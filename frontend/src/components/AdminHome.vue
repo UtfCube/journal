@@ -79,6 +79,41 @@
                     <a class="button is-primary" @click="add">Загрузить</a>
                 </div>
         </section>
+
+        <section>
+            <b-field label="Слушатели:">
+            <b-table 
+                :data="authInfo['students']"
+                >
+                <template slot-scope="props">
+                    <b-table-column field="username" label="Username">
+                        {{ props.row.username }}
+                    </b-table-column>
+
+                    <b-table-column field="password" label="Пароль">
+                        <span @click="generatePassword(props.row.username)">{{ props.row.password }}</span>
+                    </b-table-column>
+                </template>
+            </b-table>
+            </b-field>
+        </section>
+        <section>
+            <b-field label="Преподаватели:">
+            <b-table 
+                :data="authInfo['tutors']"
+                >
+                <template slot-scope="props">
+                    <b-table-column field="username" label="Username">
+                        {{ props.row.username }}
+                    </b-table-column>
+
+                    <b-table-column field="password" label="Пароль">
+                        <span @click="generatePassword(props.row.username)">{{ props.row.password }}</span>
+                    </b-table-column>
+                </template>
+            </b-table>
+            </b-field>
+        </section>
     </div>
 </template>>
 
@@ -91,6 +126,13 @@ export default class AdminHome extends Vue {
     private studentFile: File | null = null;
     private tutorFile: File | null = null;
     private subjectFiles: any[] = [];
+
+    async beforeMount() {
+        let error = await this.$store.dispatch('getUsers');
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
+    }
 
     get username () {
         return this.$store.state.userData.username;
@@ -108,6 +150,10 @@ export default class AdminHome extends Vue {
         this.tutorFile = null;
     }
 
+    get authInfo() {
+        return this.$store.state.adminInfo;
+    }
+
     async add() {
         let formData = new FormData();
         if (this.studentFile)
@@ -118,6 +164,12 @@ export default class AdminHome extends Vue {
             formData.append(`subject${key}`, this.subjectFiles[key]);
         }
         const error = await this.$store.dispatch('AdminUpload', formData);
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
+    }
+    async generatePassword(username: string) {
+        const error = await this.$store.dispatch('generatePassword', {username: username});
         if (error) {
             this.$dialog.alert({ ...DialogError, message: error });
         }

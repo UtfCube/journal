@@ -30,6 +30,12 @@
                 <div class="control">
                     <a class="button is-primary" @click="add">Добавить</a>
                 </div>
+                <b-field label="Сменить пароль:">
+                    <b-input v-model="new_password"/>
+                </b-field>
+                <div class="control">
+                    <a class="button is-primary" @click="changePassword">Сменить пароль</a>
+                </div>
             </div>
         </section>
         <section>
@@ -63,6 +69,7 @@ export default class TutorHome extends Vue {
     private subject: string = "";
     private group: number = 0;
     private selected: object = {};
+    private new_password: string = "";
 
     async beforeCreate () {
         const error = await this.$store.dispatch('getTutorHome');
@@ -97,6 +104,13 @@ export default class TutorHome extends Vue {
     click(row: any) {
         console.log(row)
         this.$router.push({name: 'GroupSubject', params: row });
+    }
+
+    async changePassword() {
+        const error = await this.$store.dispatch('changePassword', { new_password: this.new_password});
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 }
 </script>

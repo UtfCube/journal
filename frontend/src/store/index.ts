@@ -17,7 +17,8 @@ const state = {
   gradesTable: [],
   currentCheckpoints: [],
   progress: {},
-  tutors: []
+  tutors: [],
+  adminInfo: {}
 }
 
 const actions = {  
@@ -60,10 +61,27 @@ const actions = {
         return error.response.data.msg;
       }
     },
+    async changePassword (context: any, payload: any) {
+      try { 
+        await Api.changePassword(context.state.access_token, payload)
+        return null
+      } catch (error) {
+        return error.response.data.msg;
+      }
+    },
     async getStudentHome (context: any) {
       try { 
         const response = await Api.getStudentHome(context.state.access_token)
         context.commit('setStudentInfo', { studentInfo: response.data })
+        return null
+      } catch (error) {
+        return error.response.data.msg;
+      }
+    },
+    async getUsers(context: any) { 
+      try { 
+        const response = await Api.getUsers(context.state.access_token)
+        context.commit('setAdminInfo', { info: response.data })
         return null
       } catch (error) {
         return error.response.data.msg;
@@ -111,6 +129,17 @@ const actions = {
         return error.response.data.msg;
       }
     },
+    async generatePassword(context: any, payload: any) {
+      try {
+        const response = await Api.generatePassword(context.state.access_token, payload);
+        const {password} = response.data
+        context.commit('setNewPassword', { ...payload, password: password })
+        return null;
+      }
+      catch (error) {
+        return error.response.data.msg;
+      }
+    },
     async updateGradesTable(context: any, payload: any) {
       try {
         await Api.updateGradesTable(context.state.access_token, payload);
@@ -150,7 +179,8 @@ const actions = {
     },
     async AdminUpload (context: any, payload: any) {
       try {
-        await Api.AdminUpload(context.state.access_token, payload);
+        const response = await Api.AdminUpload(context.state.access_token, payload);
+        context.commit('setAdminInfo', { info: response.data });
         return null;
       } 
       catch (error) {
@@ -215,6 +245,22 @@ const mutations = {
     setTutors (state: any, payload: any) {
       console.log('setTutors payload = ', payload)
       state.tutors = payload.tutors
+    },
+    setAdminInfo (state: any, payload: any) {
+      console.log('setAdminInfo payload = ', payload)
+      state.adminInfo = payload.info
+    },
+    setNewPassword (state: any, payload: any) {
+      console.log('setNewPassword payload = ', payload)
+      let index = state.adminInfo.tutors.findIndex((x:any) => x.username === payload.username)
+      if (index === -1) {
+        index = state.adminInfo.students.findIndex((x:any) => x.username === payload.username)
+        console.log(index)
+        Vue.set(state.adminInfo.students, index, {...state.adminInfo.students, ...payload})
+      } else {
+        console.log(index)
+        Vue.set(state.adminInfo.tutors, index, {...state.adminInfo.students, ...payload})
+      }
     },
     updateProgress(state: any, payload: any) {
       console.log("update progress", payload)
@@ -361,7 +407,9 @@ const getters = {
       }
       return fields
     },
-
+    getUsername(state: any) {
+      return state.userData.username;
+    },
     getProgress (state: any, getters: any) {
       let newProgress = JSON.parse(JSON.stringify(state.gradesTable))
       for (let userInfo of newProgress) {

@@ -7,6 +7,12 @@
                 </div>
             </div>
         </section>
+         <b-field label="Сменить пароль:">
+            <b-input v-model="new_password"/>
+        </b-field>
+        <div class="control">
+            <a class="button is-primary" @click="changePassword">Сменить пароль</a>
+        </div>
         <section>
             <b-table 
                 :data="subjects"
@@ -30,7 +36,7 @@ import { DialogError } from '@/utils';
 
 @Component
 export default class StudentHome extends Vue {
-
+    private new_password: string = "";
     get username() {
         return this.$store.state.userData.username;
     }
@@ -48,6 +54,13 @@ export default class StudentHome extends Vue {
 
     click(row: any) {
         this.$router.push({name: 'GroupSubjectS', params: {subject_name: row, group_id: "0"}});
+    }
+
+    async changePassword() {
+        const error = await this.$store.dispatch('changePassword', { new_password: this.new_password});
+        if (error) {
+            this.$dialog.alert({ ...DialogError, message: error });
+        }
     }
 }
 </script>

@@ -85,7 +85,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(userInfo, i) in progress_s" :key="i">
+          <tr v-for="(userInfo, i) in progress_s" :key="i" :style="username === userInfo.username ? 'background-color:#ACACAC' : undefined ">
             <td>
               <span>{{userInfo.fullname}}</span>
             </td>  
@@ -225,15 +225,11 @@ export default class GroupSubject extends Vue {
     
     getColor(fio:string, user_progress:any, field_progress:any) {
       let dates = this.dates[field_progress.cp_name]
-      if (dates.length <= 1) {
-        return 'background-color:#FFFFFF'
-      }
-      if (field_progress.name == 'Оценка') {
-        let date = user_progress.find((x:any) => x.name === 'Дата сдачи')
+      if (field_progress.name == 'Оценка' && dates.length === 3) {
+        let date = user_progress.find((x:any) => x.name === 'Дата сдачи' && x.cp_name == field_progress.cp_name)
         let color = this.checkDates(field_progress.cp_name, date.result)
         return color
       }
-      return 
     }
 
     async saveCell(username: string, info: any) {
@@ -276,7 +272,6 @@ export default class GroupSubject extends Vue {
       else {
         if (cp.fields.length > 1 && info.name == 'Оценка') { 
           let color = this.checkDates(cp.name, currentDate)
-          console.log(color)
         }
       }
     }
@@ -299,12 +294,21 @@ export default class GroupSubject extends Vue {
       }
       return res
     }
+
+    get username() {
+      return this.$store.getters.getUsername;
+    }
 }
 </script>
 
 <style lang='scss' scoped>
 .table-header-rotated {
   border-collapse: collapse;
+
+  tr:hover td {
+    background-color: rgb(172, 172, 172);
+  }
+
   td {
     width: 20px;
     border: 1px solid rgb(0, 0, 0);

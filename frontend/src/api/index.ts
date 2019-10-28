@@ -40,9 +40,21 @@ export default class Api {
     public static getCheckpoints(jwt: string, params: any) {
         return axios.get(`/${params.subject_name}/checkpoints`, { headers: { Authorization: `Bearer ${jwt}`}})
     }
+    public static getUsers(jwt: string) {
+        return axios.get(`/users`, { headers: { Authorization: `Bearer ${jwt}`}})
+    }
+    public static changePassword(jwt: string, payload: any) {
+        return axios.post('/password', 
+            { password: payload.new_password },
+            { headers: { Authorization: `Bearer ${jwt}`}});
+    }
     public static addCheckpoints(jwt: string, payload: any) {
         return axios.post(`/tutor/${payload.subject_name}/${payload.group_id}/checkpoints`, 
             { checkpoints: payload.checkpoints },
+            { headers: { Authorization: `Bearer ${jwt}`}});
+    }
+    public static generatePassword(jwt: string, payload: any) {
+        return axios.get(`users/${payload.username}/password`,
             { headers: { Authorization: `Bearer ${jwt}`}});
     }
     public static getGradesTable(jwt: string, params: any) {
